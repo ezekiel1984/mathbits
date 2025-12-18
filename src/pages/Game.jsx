@@ -27,7 +27,7 @@ export default function Game() {
   
   // -- Data Fetching --
   const { data: user } = useQuery({ queryKey: ['me'], queryFn: () => base44.auth.me() });
-  
+
   const { data: profile } = useQuery({
     queryKey: ['profile'],
     queryFn: async () => {
@@ -42,7 +42,7 @@ export default function Game() {
     queryFn: async () => {
       if (!user) return null;
       const res = await base44.entities.Settings.filter({ userId: user.id });
-      return res[0] || { stimulusLevel: 1, stepChainMode: true }; // Fallback defaults
+      return res[0] || { stimulusLevel: 1, stepChainMode: true }; 
     },
     enabled: !!user
   });
@@ -56,44 +56,31 @@ export default function Game() {
     queryKey: ['mathProblems', mode, skillId],
     queryFn: async () => {
       if (mode === 'practice') {
-          // Use intelligent backend selector
           const response = await base44.functions.invoke('getNextQuestion', { userId: user?.id });
           return response.data || [];
       }
-
-      // Legacy/Quest Fallback (keep existing logic for specific skill quest)
-      // In a full app, Quest mode would also fetch from Questions entity by skillId directly
       let all = await base44.entities.MathProblem.list();
       return all;
     },
     initialData: []
   });
 
-  // Game Over State
+  // Game State
   const [isGameOver, setIsGameOver] = useState(false);
-  const [score, setScore] = useState(0);
+  const [sessionStats, setSessionStats] = useState({ correct: 0, points: 0, streak: 0 });
 
   // -- Mutations --
-  const updateProgressMutation = useMutation({
-    mutationFn: async ({ isCorrect, problem }) => {
-      // 1. Log progress
-      await base44.entities.Progress.create({
-        user_email: user?.email,
-        problem_id: problem.id,
-        type: problem.type,
-        is_correct: isCorrect,
-        difficulty: problem.difficulty,
-        time_taken_seconds: 0 // TODO: track time
-      });
-
-      // 2. Update stats if correct
-      if (isCorrect && profile?.id) {
-        await base44.entities.UserProfile.update(profile.id, {
-          points: (profile.points || 0) + 10,
-          streak: (profile.streak || 0) // Logic to update streak daily would go here
-        });
+  const submitAttemptMutation = useMutation({
+    mutationFn: (data) => base44.functions.invoke('submitAttempt', data),
+    onSuccess: (response) => {
+        const { masteryScore, streak, points } = response.data;
+        // Update local session stats
+        setSessionStats(prev => ({
+            correct: prev.correct + (response.data.streak > 0 ? 1 : 0),
+            points: prev.points + (response.data.streak > 0 ? 10 : 2),
+            streak: streak
+        }));
         queryClient.invalidateQueries({ queryKey: ['profile'] });
-      }
     }
   });
 
@@ -101,19 +88,20 @@ export default function Game() {
   const currentProblem = problems[currentProblemIndex];
   // Apply Step-Chain toggle from settings
   const isStepMode = (userSettings?.stepChainMode ?? true) && currentProblem?.steps && currentProblem.steps.length > 0;
-  
+
   // Determine visuals
+  const visualType = currentProblem?.derivedType || currentProblem?.type; // Support both new and legacy
   const visualCount = currentProblem ? 
-    (currentProblem.type === 'subtraction' ? currentProblem.number_1 : 
-     currentProblem.type === 'multiplication' ? currentProblem.number_1 * currentProblem.number_2 :
+    (visualType === 'subtraction' ? currentProblem.number_1 : 
+     visualType === 'multiplication' ? currentProblem.number_1 * currentProblem.number_2 :
      currentProblem.number_1 + (currentProblem.number_2 || 0)) : 0;
-     
+
   // Determine highlighting based on step
   const getHighlights = () => {
     if (!isStepMode) return [];
     if (currentStep === 0) return [...Array(currentProblem.number_1).keys()];
     if (currentStep === 1) return [...Array(currentProblem.number_2).keys()].map(i => i + currentProblem.number_1);
-    return [...Array(visualCount).keys()]; // Final step
+    return [...Array(visualCount).keys()]; 
   };
 
   const handleInput = (num) => {
@@ -123,19 +111,36 @@ export default function Game() {
 
   const handleDelete = () => setInput(prev => prev.slice(0, -1));
 
-  const checkAnswer = () => {
-    if (!input) return;
-    const val = parseInt(input);
-    const isCorrect = val === currentProblem.answer;
+  const checkAnswer = (val) => {
+    // val can be passed directly (multiple choice) or parsed from input
+    const answerVal = val !== undefined ? val : input;
+    if (answerVal === undefined || answerVal === "") return;
+
+    // Compare as strings to handle both numeric and potential string answers
+    const isCorrect = String(answerVal).trim() === String(currentProblem.answer).trim();
+
+    // Submit Attempt
+    if (currentProblem.id) { // Only submit if we have a real ID
+        submitAttemptMutation.mutate({
+            userId: user?.id,
+            skillId: currentProblem.skillId, // New field from getNextQuestion
+            questionId: currentProblem.id,
+            isCorrect: isCorrect,
+            timeTakenSec: 10, // TODO: Implement timer
+            hintsUsed: 0 // TODO: Implement hint tracking
+        });
+    }
 
     if (isCorrect) {
       setFeedback('correct');
-      updateProgressMutation.mutate({ isCorrect: true, problem: currentProblem });
+      // If multiple choice, we might want to set input to show it was selected
+      if (val !== undefined) setInput(String(val));
     } else {
       setFeedback('incorrect');
-      // Shake animation trigger logic could go here
-      setTimeout(() => setInput(""), 500);
-      setTimeout(() => setFeedback(null), 1000);
+      setTimeout(() => {
+          if (val === undefined) setInput(""); // Clear if text input
+          setFeedback(null);
+      }, 1000);
     }
   };
 
@@ -143,8 +148,9 @@ export default function Game() {
     setFeedback(null);
     setInput("");
     setCurrentStep(0);
-    
-    if (currentProblemIndex + 1 >= problems.length) {
+
+    // Check if session complete (10 questions or end of list)
+    if (currentProblemIndex + 1 >= problems.length || currentProblemIndex + 1 >= 10) {
       setIsGameOver(true);
     } else {
       setCurrentProblemIndex(prev => prev + 1);
@@ -158,13 +164,34 @@ export default function Game() {
 
   if (isGameOver) {
     return (
-      <div className="flex flex-col items-center justify-center h-screen gap-6 p-4 text-center">
-        <h1 className="text-5xl font-black text-slate-800">Great Job!</h1>
-        <div className="text-8xl">🎉</div>
-        <p className="text-2xl text-slate-500 font-bold">You finished the set!</p>
-        <Link to={createPageUrl('Home')}>
-          <BigButton variant="primary" icon={ArrowLeft} fullWidth>Back Home</BigButton>
-        </Link>
+      <div className="flex flex-col items-center justify-center h-screen gap-6 p-4 text-center bg-sky-50">
+        <motion.div 
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="bg-white rounded-[2rem] p-8 shadow-xl max-w-md w-full"
+        >
+            <h1 className="text-4xl font-black text-slate-800 mb-2">Session Complete!</h1>
+            <div className="text-8xl mb-6">🎉</div>
+
+            <div className="grid grid-cols-2 gap-4 mb-8">
+                <div className="bg-emerald-50 rounded-2xl p-4">
+                    <div className="text-emerald-500 font-bold uppercase text-xs tracking-wider">Correct</div>
+                    <div className="text-3xl font-black text-emerald-600">{sessionStats.correct}</div>
+                </div>
+                <div className="bg-amber-50 rounded-2xl p-4">
+                    <div className="text-amber-500 font-bold uppercase text-xs tracking-wider">Points</div>
+                    <div className="text-3xl font-black text-amber-600">+{sessionStats.points}</div>
+                </div>
+                <div className="bg-sky-50 rounded-2xl p-4 col-span-2">
+                    <div className="text-sky-500 font-bold uppercase text-xs tracking-wider">Streak</div>
+                    <div className="text-3xl font-black text-sky-600">{sessionStats.streak} 🔥</div>
+                </div>
+            </div>
+
+            <Link to={createPageUrl('Home')}>
+            <BigButton variant="primary" icon={ArrowLeft} fullWidth>Back Home</BigButton>
+            </Link>
+        </motion.div>
       </div>
     );
   }
@@ -188,6 +215,9 @@ export default function Game() {
             <ArrowLeft className="w-8 h-8 text-slate-500" />
           </button>
         </Link>
+        <div className="text-sm font-bold text-slate-400 mr-2">
+           {currentProblemIndex + 1}/10
+        </div>
         <div className="h-4 flex-1 mx-4 bg-slate-100 rounded-full overflow-hidden">
           <motion.div 
             className="h-full bg-sky-400"
@@ -247,7 +277,7 @@ export default function Game() {
         {/* Visuals */}
         <VisualCounter 
           count={visualCount} 
-          type={currentProblem.visual_type} 
+          type={currentProblem.visual_type || 'blocks'} 
           highlightIndices={getHighlights()}
           size="md"
         />
@@ -264,49 +294,76 @@ export default function Game() {
 
       {/* Input Area */}
       <div className="mt-auto pt-4 bg-white/80 backdrop-blur-md border-t border-slate-100 -mx-4 px-4 pb-4">
-        {/* Answer Display */}
-        <div className="flex justify-center mb-4">
-          <div className={`
-            h-20 min-w-[120px] px-8 rounded-3xl flex items-center justify-center text-5xl font-black border-4
-            ${feedback === 'incorrect' ? "border-rose-300 bg-rose-50 text-rose-500 animate-shake" : 
-              feedback === 'correct' ? "border-emerald-300 bg-emerald-50 text-emerald-500" :
-              "border-sky-100 bg-white text-slate-700"}
-          `}>
-            {input || "?"}
-          </div>
-        </div>
+        {currentProblem?.type === 'multipleChoice' && currentProblem.choices ? (
+            // Multiple Choice UI
+            <div className="grid grid-cols-2 gap-3 max-w-sm mx-auto mb-4">
+                {currentProblem.choices.map((choice, idx) => (
+                    <motion.button
+                        key={idx}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => checkAnswer(choice)}
+                        className={`
+                            h-24 rounded-3xl text-2xl font-bold shadow-sm border-b-4 transition-all
+                            ${feedback === 'correct' && String(choice) === String(currentProblem.answer)
+                                ? "bg-emerald-400 text-white border-emerald-600"
+                                : feedback === 'incorrect'
+                                ? "bg-slate-50 text-slate-300 border-slate-200" 
+                                : "bg-white text-slate-700 border-slate-200 hover:bg-sky-50 hover:border-sky-200"
+                            }
+                        `}
+                    >
+                        {choice}
+                    </motion.button>
+                ))}
+            </div>
+        ) : (
+            // Numeric Input UI (Default)
+            <>
+                {/* Answer Display */}
+                <div className="flex justify-center mb-4">
+                <div className={`
+                    h-20 min-w-[120px] px-8 rounded-3xl flex items-center justify-center text-5xl font-black border-4
+                    ${feedback === 'incorrect' ? "border-rose-300 bg-rose-50 text-rose-500 animate-shake" : 
+                    feedback === 'correct' ? "border-emerald-300 bg-emerald-50 text-emerald-500" :
+                    "border-sky-100 bg-white text-slate-700"}
+                `}>
+                    {input || "?"}
+                </div>
+                </div>
 
-        {/* Numpad */}
-        <div className="grid grid-cols-3 gap-3 max-w-sm mx-auto">
-          {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => (
-            <button
-              key={num}
-              onClick={() => handleInput(num)}
-              className="h-16 rounded-2xl bg-slate-50 text-2xl font-bold text-slate-600 shadow-sm active:bg-sky-100 active:scale-95 transition-all"
-            >
-              {num}
-            </button>
-          ))}
-          <button
-            onClick={handleDelete}
-            className="h-16 rounded-2xl bg-rose-50 text-rose-400 flex items-center justify-center active:scale-95 transition-all"
-          >
-            <Delete className="w-6 h-6" />
-          </button>
-          <button
-            onClick={() => handleInput(0)}
-            className="h-16 rounded-2xl bg-slate-50 text-2xl font-bold text-slate-600 shadow-sm active:bg-sky-100 active:scale-95 transition-all"
-          >
-            0
-          </button>
-          <button
-            onClick={checkAnswer}
-            disabled={!input}
-            className="h-16 rounded-2xl bg-emerald-400 text-white flex items-center justify-center shadow-emerald-200 shadow-md active:scale-95 transition-all disabled:opacity-50"
-          >
-            <Check className="w-8 h-8 stroke-[3]" />
-          </button>
-        </div>
+                {/* Numpad */}
+                <div className="grid grid-cols-3 gap-3 max-w-sm mx-auto">
+                {[1, 2, 3, 4, 5, 6, 7, 8, 9].map(num => (
+                    <button
+                    key={num}
+                    onClick={() => handleInput(num)}
+                    className="h-16 rounded-2xl bg-slate-50 text-2xl font-bold text-slate-600 shadow-sm active:bg-sky-100 active:scale-95 transition-all"
+                    >
+                    {num}
+                    </button>
+                ))}
+                <button
+                    onClick={handleDelete}
+                    className="h-16 rounded-2xl bg-rose-50 text-rose-400 flex items-center justify-center active:scale-95 transition-all"
+                >
+                    <Delete className="w-6 h-6" />
+                </button>
+                <button
+                    onClick={() => handleInput(0)}
+                    className="h-16 rounded-2xl bg-slate-50 text-2xl font-bold text-slate-600 shadow-sm active:bg-sky-100 active:scale-95 transition-all"
+                >
+                    0
+                </button>
+                <button
+                    onClick={() => checkAnswer()}
+                    disabled={!input}
+                    className="h-16 rounded-2xl bg-emerald-400 text-white flex items-center justify-center shadow-emerald-200 shadow-md active:scale-95 transition-all disabled:opacity-50"
+                >
+                    <Check className="w-8 h-8 stroke-[3]" />
+                </button>
+                </div>
+            </>
+        )}
       </div>
 
       <style>{`
