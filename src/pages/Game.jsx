@@ -255,9 +255,9 @@ export default function Game() {
         {/* Step Chain UI */}
         {isStepMode && feedback !== 'correct' && (
           <StepChain 
+            goal={currentProblem.question_text}
             steps={currentProblem.steps} 
-            currentStep={currentStep} 
-            onNext={() => setCurrentStep(prev => prev + 1)} 
+            expandedDefault={userSettings?.stepChainMode ?? true}
           />
         )}
       </div>

@@ -5,6 +5,7 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { createPageUrl } from "@/utils";
 import { ArrowLeft, PlayCircle } from 'lucide-react';
 import BigButton from "@/components/ui/BigButton";
+import StepChain from "@/components/game/StepChain";
 
 export default function Lesson() {
   const [searchParams] = useSearchParams();
@@ -45,8 +46,13 @@ export default function Lesson() {
             {skill.description || "Learn this new concept!"}
           </p>
           {/* Placeholder for visual example */}
-          <div className="mt-8 h-40 bg-white rounded-2xl border-2 border-dashed border-slate-200 flex items-center justify-center text-slate-300">
-            Visual Example Here
+          <div className="mt-8">
+             <div className="text-xs font-bold text-slate-400 uppercase mb-2 tracking-wider text-center">Example Problem</div>
+             <StepChain 
+                goal="2 + 3 = ?"
+                steps={["Start with 2 blocks", "Add 3 more blocks", "Count them all together"]}
+                expandedDefault={true}
+             />
           </div>
         </div>
 
