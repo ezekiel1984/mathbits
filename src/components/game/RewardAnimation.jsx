@@ -1,16 +1,7 @@
-import React, { useEffect, useState } from 'react';
-import Confetti from 'react-confetti';
+import React, { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 export default function RewardAnimation({ show, intensity = 3, onComplete }) {
-  const [windowSize, setWindowSize] = useState({ width: window.innerWidth, height: window.innerHeight });
-
-  useEffect(() => {
-    const handleResize = () => setWindowSize({ width: window.innerWidth, height: window.innerHeight });
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
   useEffect(() => {
     if (show && onComplete) {
       const timer = setTimeout(onComplete, 3000);
@@ -20,26 +11,23 @@ export default function RewardAnimation({ show, intensity = 3, onComplete }) {
 
   if (!show) return null;
 
-  // Intensity map
-  const config = {
-    1: { numberOfPieces: 0, component: <MinimalReward /> }, // Calm
-    2: { numberOfPieces: 20, gravity: 0.1 },
-    3: { numberOfPieces: 100, gravity: 0.2 },
-    4: { numberOfPieces: 300, gravity: 0.3 },
-    5: { numberOfPieces: 500, gravity: 0.4, colors: ['#FFC700', '#FF0000', '#2E3192', '#41BBC7'] } // Party
-  };
-
-  const currentConfig = config[intensity] || config[3];
+  // Intensity map for particle count
+  const particleCount = {
+    1: 0,
+    2: 20,
+    3: 50,
+    4: 100,
+    5: 200
+  }[intensity] || 50;
 
   return (
-    <div className="fixed inset-0 pointer-events-none z-50 flex items-center justify-center">
+    <div className="fixed inset-0 pointer-events-none z-50 flex items-center justify-center overflow-hidden">
       {intensity > 1 && (
-        <Confetti
-          width={windowSize.width}
-          height={windowSize.height}
-          recycle={false}
-          {...currentConfig}
-        />
+        <div className="absolute inset-0">
+          {[...Array(particleCount)].map((_, i) => (
+            <Particle key={i} />
+          ))}
+        </div>
       )}
       
       <AnimatePresence>
@@ -48,7 +36,7 @@ export default function RewardAnimation({ show, intensity = 3, onComplete }) {
           animate={{ scale: 1, opacity: 1, rotate: [0, -10, 10, 0] }}
           exit={{ scale: 0.5, opacity: 0 }}
           transition={{ type: "spring", bounce: 0.6 }}
-          className="bg-white p-8 rounded-full shadow-2xl border-4 border-sky-100 flex flex-col items-center"
+          className="bg-white p-8 rounded-full shadow-2xl border-4 border-sky-100 flex flex-col items-center relative z-10"
         >
           <span className="text-6xl mb-2">🎉</span>
           <span className="text-2xl font-black text-sky-500 uppercase tracking-widest">Great!</span>
@@ -58,14 +46,34 @@ export default function RewardAnimation({ show, intensity = 3, onComplete }) {
   );
 }
 
-function MinimalReward() {
+function Particle() {
+  // Random start position
+  const xStart = Math.random() * 100; // vw
+  // Random colors
+  const colors = ['#FFC700', '#FF0000', '#2E3192', '#41BBC7', '#34D399', '#F472B6'];
+  const color = colors[Math.floor(Math.random() * colors.length)];
+  
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="bg-emerald-100 text-emerald-700 px-6 py-3 rounded-full font-bold text-xl"
-    >
-      Correct!
-    </motion.div>
+      initial={{ 
+        y: -20, 
+        x: `${xStart}vw`,
+        rotate: 0,
+        opacity: 1 
+      }}
+      animate={{ 
+        y: "110vh", 
+        x: `${xStart + (Math.random() * 20 - 10)}vw`, // Slight drift
+        rotate: 360 * (Math.random() > 0.5 ? 1 : -1),
+        opacity: 0
+      }}
+      transition={{ 
+        duration: 2 + Math.random() * 2, 
+        ease: "linear",
+        repeat: 0 
+      }}
+      className="absolute top-0 w-3 h-3 rounded-sm"
+      style={{ backgroundColor: color }}
+    />
   );
 }
