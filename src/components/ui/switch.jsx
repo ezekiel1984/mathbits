@@ -1,1 +1,30 @@
-// ... keep existing code (all content) ...
+
+import React from 'react';
+import { cn } from "@/lib/utils";
+
+const Switch = React.forwardRef(({ className, checked, onCheckedChange, ...props }, ref) => (
+  <button
+    type="button"
+    role="switch"
+    aria-checked={checked}
+    onClick={() => onCheckedChange?.(!checked)}
+    ref={ref}
+    className={cn(
+      "peer inline-flex h-8 w-14 shrink-0 cursor-pointer items-center rounded-full border-2 border-transparent transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-400 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+      checked ? "bg-sky-500" : "bg-slate-200",
+      className
+    )}
+    {...props}
+  >
+    <span
+      className={cn(
+        "pointer-events-none block h-7 w-7 rounded-full bg-white shadow-lg ring-0 transition-transform",
+        checked ? "translate-x-6" : "translate-x-0"
+      )}
+    />
+  </button>
+));
+
+Switch.displayName = "Switch";
+
+export { Switch };
