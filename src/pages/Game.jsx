@@ -32,7 +32,17 @@ export default function Game() {
     queryKey: ['profile'],
     queryFn: async () => {
       const profiles = await base44.entities.UserProfile.filter({ created_by: user.email });
-      return profiles[0] || { stimulus_level: 3 }; // Fallback
+      return profiles[0];
+    },
+    enabled: !!user
+  });
+
+  const { data: userSettings } = useQuery({
+    queryKey: ['settings'],
+    queryFn: async () => {
+      if (!user) return null;
+      const res = await base44.entities.Settings.filter({ userId: user.id });
+      return res[0] || { stimulusLevel: 1, stepChainMode: true }; // Fallback defaults
     },
     enabled: !!user
   });
@@ -89,7 +99,8 @@ export default function Game() {
 
   // -- Logic --
   const currentProblem = problems[currentProblemIndex];
-  const isStepMode = currentProblem?.steps && currentProblem.steps.length > 0;
+  // Apply Step-Chain toggle from settings
+  const isStepMode = (userSettings?.stepChainMode ?? true) && currentProblem?.steps && currentProblem.steps.length > 0;
   
   // Determine visuals
   const visualCount = currentProblem ? 
@@ -166,7 +177,7 @@ export default function Game() {
     <div className="h-[90vh] flex flex-col relative overflow-hidden">
       <RewardAnimation 
         show={feedback === 'correct'} 
-        intensity={profile?.stimulus_level || 3} 
+        intensity={userSettings?.stimulusLevel ?? 1} 
         onComplete={handleNextProblem} 
       />
 
@@ -190,10 +201,10 @@ export default function Game() {
         >
           <Settings2 className="w-8 h-8" />
         </button>
-      </div>
+        </div>
 
-      {/* Settings Overlay */}
-      <AnimatePresence>
+        {/* Settings Overlay */}
+        <AnimatePresence>
         {showSettings && (
           <motion.div 
             initial={{ height: 0, opacity: 0 }}
@@ -201,17 +212,25 @@ export default function Game() {
             exit={{ height: 0, opacity: 0 }}
             className="mb-4 overflow-hidden"
           >
-            <StimulusDial 
-              value={profile?.stimulus_level || 3} 
-              onChange={(val) => {
-                // Optimistic update
-                base44.entities.UserProfile.update(profile.id, { stimulus_level: val });
-                queryClient.setQueryData(['profile'], old => ({ ...old, stimulus_level: val }));
-              }} 
-            />
+            <div className="bg-white/90 backdrop-blur rounded-2xl p-4 shadow-lg border border-sky-100">
+              <p className="text-center font-bold text-slate-400 mb-2 uppercase text-xs">Stimulus Level</p>
+              <StimulusDial 
+                value={userSettings?.stimulusLevel ?? 1} 
+                onChange={(val) => {
+                  // Update Settings
+                  if (userSettings) {
+                      base44.entities.Settings.update(userSettings.id, { stimulusLevel: val });
+                      queryClient.setQueryData(['settings'], old => ({ ...old, stimulusLevel: val }));
+                  } else if (user) {
+                      base44.entities.Settings.create({ userId: user.id, stimulusLevel: val });
+                      queryClient.invalidateQueries({ queryKey: ['settings'] });
+                  }
+                }} 
+              />
+            </div>
           </motion.div>
         )}
-      </AnimatePresence>
+        </AnimatePresence>
 
       {/* Game Area */}
       <div className="flex-1 flex flex-col items-center justify-start overflow-y-auto pb-4 no-scrollbar">

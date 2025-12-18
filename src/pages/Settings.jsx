@@ -21,9 +21,18 @@ export default function Settings() {
     enabled: !!user
   });
 
+  const { data: userSettings } = useQuery({
+    queryKey: ['settings'],
+    queryFn: async () => {
+      const res = await base44.entities.Settings.filter({ userId: user.id });
+      return res[0] || null;
+    },
+    enabled: !!user
+  });
+
   const [formData, setFormData] = useState({
     display_name: "",
-    stimulus_level: 3,
+    stimulus_level: 1, // Default from Settings schema is 1
     high_contrast: false,
     current_grade: "K",
     step_chain_mode: true
@@ -31,27 +40,60 @@ export default function Settings() {
 
   useEffect(() => {
     if (profile) {
-      setFormData({
+      setFormData(prev => ({
+        ...prev,
         display_name: profile.display_name,
-        stimulus_level: profile.stimulus_level,
         high_contrast: profile.high_contrast,
         current_grade: profile.current_grade,
-        step_chain_mode: profile.step_chain_mode ?? true
-      });
+      }));
     }
   }, [profile]);
 
-  const updateMutation = useMutation({
-    mutationFn: (data) => base44.entities.UserProfile.update(profile.id, data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['profile'] });
-      // Reload to apply global styles if high contrast changed
-      setTimeout(() => window.location.reload(), 500); 
+  useEffect(() => {
+    if (userSettings) {
+      setFormData(prev => ({
+        ...prev,
+        stimulus_level: userSettings.stimulusLevel ?? 1,
+        step_chain_mode: userSettings.stepChainMode ?? true
+      }));
     }
+  }, [userSettings]);
+
+  const updateProfileMutation = useMutation({
+    mutationFn: (data) => base44.entities.UserProfile.update(profile.id, data),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['profile'] })
   });
 
-  const handleSave = () => {
-    updateMutation.mutate(formData);
+  const updateSettingsMutation = useMutation({
+    mutationFn: async (data) => {
+      if (userSettings) {
+        return base44.entities.Settings.update(userSettings.id, data);
+      } else {
+        return base44.entities.Settings.create({ ...data, userId: user.id });
+      }
+    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['settings'] })
+  });
+
+  const handleSave = async () => {
+    // Save Profile Data
+    if (profile) {
+        await updateProfileMutation.mutateAsync({
+            display_name: formData.display_name,
+            high_contrast: formData.high_contrast,
+            current_grade: formData.current_grade
+        });
+    }
+
+    // Save Settings Data
+    await updateSettingsMutation.mutateAsync({
+        stimulusLevel: formData.stimulus_level,
+        stepChainMode: formData.step_chain_mode
+    });
+
+    if (profile?.high_contrast !== formData.high_contrast) {
+         setTimeout(() => window.location.reload(), 500);
+    }
   };
 
   if (!profile) return <div>Loading...</div>;
