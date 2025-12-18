@@ -6,10 +6,27 @@ import { ArrowLeft, Clock, Target, Award } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from "@/utils";
 import BigButton from "@/components/ui/BigButton";
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 export default function ParentDashboard() {
+  const queryClient = useQueryClient();
   const { data: user } = useQuery({ queryKey: ['me'], queryFn: () => base44.auth.me() });
   
+  const { data: profile } = useQuery({
+    queryKey: ['profile'],
+    queryFn: async () => {
+      if (!user) return null;
+      const profiles = await base44.entities.UserProfile.filter({ created_by: user.email });
+      return profiles[0] || null;
+    },
+    enabled: !!user
+  });
+
+  const updateProfileMutation = useMutation({
+    mutationFn: (data) => base44.entities.UserProfile.update(profile.id, data),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['profile'] })
+  });
+
   const { data: progressData, isLoading } = useQuery({
     queryKey: ['progress'],
     queryFn: async () => {
@@ -46,8 +63,8 @@ export default function ParentDashboard() {
   if (isLoading) return <div className="p-8 text-center text-slate-400">Loading stats...</div>;
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center gap-4 mb-8">
+    <div className="space-y-8 pb-24">
+      <div className="flex items-center gap-4">
         <Link to={createPageUrl('Home')}>
           <div className="p-2 bg-white rounded-xl shadow-sm hover:bg-slate-50 transition-colors">
             <ArrowLeft className="w-6 h-6 text-slate-400" />
@@ -55,6 +72,36 @@ export default function ParentDashboard() {
         </Link>
         <h1 className="text-3xl font-black text-slate-800">Parent Dashboard</h1>
       </div>
+
+      {/* Kid Management Section */}
+      {profile && (
+        <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
+            <h2 className="text-lg font-bold text-slate-700 mb-4">Kid Profile</h2>
+            <div className="flex gap-4 items-center">
+                <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center text-4xl border border-slate-100">
+                    {profile.avatar_url}
+                </div>
+                <div className="flex-1">
+                    <label className="text-xs font-bold text-slate-400 uppercase">Name</label>
+                    <input 
+                        className="w-full text-xl font-bold text-slate-800 border-b-2 border-slate-100 focus:border-sky-400 outline-none py-1"
+                        value={profile.display_name}
+                        onChange={(e) => updateProfileMutation.mutate({ display_name: e.target.value })}
+                    />
+                </div>
+                <div className="flex-1">
+                    <label className="text-xs font-bold text-slate-400 uppercase">Grade</label>
+                    <select 
+                        className="w-full text-xl font-bold text-slate-800 border-b-2 border-slate-100 focus:border-sky-400 outline-none py-1 bg-transparent"
+                        value={profile.current_grade}
+                        onChange={(e) => updateProfileMutation.mutate({ current_grade: e.target.value })}
+                    >
+                        {["K", "1", "2", "3", "4", "5", "6"].map(g => <option key={g} value={g}>{g}</option>)}
+                    </select>
+                </div>
+            </div>
+        </div>
+      )}
 
       {!stats ? (
         <div className="bg-white rounded-3xl p-8 text-center border border-slate-100 shadow-sm">

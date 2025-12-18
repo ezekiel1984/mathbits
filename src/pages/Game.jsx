@@ -3,7 +3,7 @@ import { base44 } from "@/api/base44Client";
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Settings2, Delete, Check } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { createPageUrl } from "@/utils";
 
 import BigButton from "@/components/ui/BigButton";
@@ -37,11 +37,31 @@ export default function Game() {
     enabled: !!user
   });
 
+  // -- Query Params --
+  const [searchParams] = useSearchParams();
+  const mode = searchParams.get('mode') || 'practice';
+  const skillId = searchParams.get('skillId');
+
   const { data: problems, isLoading: isProblemsLoading } = useQuery({
-    queryKey: ['mathProblems'],
-    queryFn: () => base44.entities.MathProblem.list(),
+    queryKey: ['mathProblems', mode, skillId],
+    queryFn: async () => {
+      // Logic: If skillId, fetch questions. If not, fetch MathProblems (legacy) or random.
+      // For now, to keep it working with existing seeded data, we pull MathProblem.
+      // In a real full implementation, we'd fetch from Questions entity if mode==quest.
+      let all = await base44.entities.MathProblem.list();
+      
+      if (mode === 'practice') {
+        // Shuffle and take 5 for quick practice
+        return all.sort(() => 0.5 - Math.random()).slice(0, 5);
+      }
+      return all;
+    },
     initialData: []
   });
+
+  // Game Over State
+  const [isGameOver, setIsGameOver] = useState(false);
+  const [score, setScore] = useState(0);
 
   // -- Mutations --
   const updateProgressMutation = useMutation({
@@ -112,12 +132,34 @@ export default function Game() {
     setFeedback(null);
     setInput("");
     setCurrentStep(0);
-    setCurrentProblemIndex(prev => (prev + 1) % problems.length);
+    
+    if (currentProblemIndex + 1 >= problems.length) {
+      setIsGameOver(true);
+    } else {
+      setCurrentProblemIndex(prev => prev + 1);
+    }
   };
 
   // -- Render --
-  if (isProblemsLoading || !currentProblem) {
+  if (isProblemsLoading) {
     return <div className="flex justify-center items-center h-screen"><div className="animate-spin text-4xl">⏳</div></div>;
+  }
+
+  if (isGameOver) {
+    return (
+      <div className="flex flex-col items-center justify-center h-screen gap-6 p-4 text-center">
+        <h1 className="text-5xl font-black text-slate-800">Great Job!</h1>
+        <div className="text-8xl">🎉</div>
+        <p className="text-2xl text-slate-500 font-bold">You finished the set!</p>
+        <Link to={createPageUrl('Home')}>
+          <BigButton variant="primary" icon={ArrowLeft} fullWidth>Back Home</BigButton>
+        </Link>
+      </div>
+    );
+  }
+
+  if (!currentProblem) {
+    return <div className="p-8 text-center">No problems found.</div>;
   }
 
   return (

@@ -25,7 +25,8 @@ export default function Settings() {
     display_name: "",
     stimulus_level: 3,
     high_contrast: false,
-    current_grade: "K"
+    current_grade: "K",
+    step_chain_mode: true
   });
 
   useEffect(() => {
@@ -34,7 +35,8 @@ export default function Settings() {
         display_name: profile.display_name,
         stimulus_level: profile.stimulus_level,
         high_contrast: profile.high_contrast,
-        current_grade: profile.current_grade
+        current_grade: profile.current_grade,
+        step_chain_mode: profile.step_chain_mode ?? true
       });
     }
   }, [profile]);
@@ -119,6 +121,18 @@ export default function Settings() {
               checked={formData.high_contrast}
               onCheckedChange={(checked) => setFormData({...formData, high_contrast: checked})}
             />
+          </div>
+
+          {/* Step Chain Toggle */}
+          <div className="flex items-center justify-between p-4 bg-slate-50 rounded-2xl">
+             <div>
+                <p className="font-bold text-slate-700">Step-Chain Mode</p>
+                <p className="text-xs text-slate-400">Break problems into smaller steps</p>
+             </div>
+             <Switch 
+               checked={formData.step_chain_mode ?? true} // Default true if undefined
+               onCheckedChange={(checked) => setFormData({...formData, step_chain_mode: checked})}
+             />
           </div>
         </div>
 

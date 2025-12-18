@@ -174,31 +174,56 @@ export default function Home() {
 
       {/* Main Actions */}
       <div className="grid gap-4 mt-4">
-        <Link to={createPageUrl('Game')}>
-            <div className="relative group">
-                <div className="absolute inset-0 bg-sky-400 rounded-3xl blur opacity-20 group-hover:opacity-30 transition-opacity" />
+        {/* Row 1: Quest & Practice */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Link to={createPageUrl('QuestMap')}>
+                <div className="relative group h-full">
+                    <div className="absolute inset-0 bg-sky-400 rounded-3xl blur opacity-20 group-hover:opacity-30 transition-opacity" />
+                    <BigButton 
+                        variant="primary" 
+                        icon={Play} 
+                        fullWidth 
+                        className="h-32 text-2xl shadow-xl shadow-sky-200"
+                    >
+                        Play Quest
+                    </BigButton>
+                </div>
+            </Link>
+            
+            <Link to={createPageUrl('Game') + "?mode=practice"}>
                 <BigButton 
-                variant="primary" 
-                icon={Play} 
-                fullWidth 
-                className="h-32 text-3xl shadow-xl shadow-sky-200"
+                    variant="success" 
+                    icon={Star} 
+                    fullWidth 
+                    className="h-32 text-2xl"
                 >
-                PLAY NOW
+                    Practice
                 </BigButton>
-            </div>
-        </Link>
+            </Link>
+        </div>
 
+        {/* Row 2: Rewards & Settings */}
         <div className="grid grid-cols-2 gap-4">
-          <ParentGate onUnlock={() => navigate(createPageUrl('ParentDashboard'))}>
-            <BigButton variant="secondary" icon={UserIcon} className="h-full flex-col gap-2 w-full">
-                Stats
+          <Link to={createPageUrl('Rewards')}>
+            <BigButton variant="secondary" icon={Star} className="h-32 flex-col gap-2 w-full text-amber-500 border-amber-200 bg-amber-50">
+                Rewards
             </BigButton>
-          </ParentGate>
+          </Link>
+          
           <ParentGate onUnlock={() => navigate(createPageUrl('Settings'))}>
-            <BigButton variant="secondary" icon={SettingsIcon} className="h-full flex-col gap-2 w-full">
+            <BigButton variant="secondary" icon={SettingsIcon} className="h-32 flex-col gap-2 w-full">
                 Settings
             </BigButton>
           </ParentGate>
+        </div>
+
+        {/* Parent Dashboard Link (Small) */}
+        <div className="flex justify-center mt-2">
+            <ParentGate onUnlock={() => navigate(createPageUrl('ParentDashboard'))}>
+                <button className="text-sm font-bold text-slate-400 hover:text-sky-500 flex items-center gap-1">
+                    <UserIcon className="w-4 h-4" /> Parent Dashboard
+                </button>
+            </ParentGate>
         </div>
       </div>
 

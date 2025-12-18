@@ -2,6 +2,9 @@ import Home from './pages/Home';
 import Game from './pages/Game';
 import ParentDashboard from './pages/ParentDashboard';
 import Settings from './pages/Settings';
+import QuestMap from './pages/QuestMap';
+import Lesson from './pages/Lesson';
+import Rewards from './pages/Rewards';
 import __Layout from './Layout.jsx';
 
 
@@ -10,6 +13,9 @@ export const PAGES = {
     "Game": Game,
     "ParentDashboard": ParentDashboard,
     "Settings": Settings,
+    "QuestMap": QuestMap,
+    "Lesson": Lesson,
+    "Rewards": Rewards,
 }
 
 export const pagesConfig = {
