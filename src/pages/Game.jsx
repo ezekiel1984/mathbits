@@ -55,15 +55,15 @@ export default function Game() {
   const { data: problems, isLoading: isProblemsLoading } = useQuery({
     queryKey: ['mathProblems', mode, skillId],
     queryFn: async () => {
-      // Logic: If skillId, fetch questions. If not, fetch MathProblems (legacy) or random.
-      // For now, to keep it working with existing seeded data, we pull MathProblem.
-      // In a real full implementation, we'd fetch from Questions entity if mode==quest.
-      let all = await base44.entities.MathProblem.list();
-      
       if (mode === 'practice') {
-        // Shuffle and take 5 for quick practice
-        return all.sort(() => 0.5 - Math.random()).slice(0, 5);
+          // Use intelligent backend selector
+          const response = await base44.functions.invoke('getNextQuestion', { userId: user?.id });
+          return response.data || [];
       }
+
+      // Legacy/Quest Fallback (keep existing logic for specific skill quest)
+      // In a full app, Quest mode would also fetch from Questions entity by skillId directly
+      let all = await base44.entities.MathProblem.list();
       return all;
     },
     initialData: []
