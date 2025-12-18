@@ -5,9 +5,11 @@ import BigButton from "@/components/ui/BigButton";
 import { Play, User as UserIcon, Settings as SettingsIcon, Star } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { createPageUrl } from "@/utils";
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import ParentGate from "@/components/common/ParentGate";
 
 export default function Home() {
+  const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [nameInput, setNameInput] = useState("");
   const [selectedAvatar, setSelectedAvatar] = useState("🦊");
@@ -67,24 +69,27 @@ export default function Home() {
           animate={{ opacity: 1, y: 0 }}
           className="text-center"
         >
-          <h1 className="text-4xl font-black text-sky-500 mb-2">Hello!</h1>
-          <p className="text-xl text-slate-500 font-medium">Let's get set up.</p>
+          <div className="inline-block bg-sky-100 text-sky-700 px-4 py-1 rounded-full text-sm font-bold mb-4">
+            Parent Setup
+          </div>
+          <h1 className="text-3xl font-black text-slate-800 mb-2">Create Kid Profile</h1>
+          <p className="text-lg text-slate-500">Let's set up the app for your child.</p>
         </motion.div>
 
         <div className="w-full space-y-6">
           <div className="space-y-2">
-            <label className="text-lg font-bold text-slate-600 ml-1">What's your name?</label>
+            <label className="text-lg font-bold text-slate-600 ml-1">Child's Name</label>
             <input 
               type="text"
               value={nameInput}
               onChange={(e) => setNameInput(e.target.value)}
-              className="w-full text-3xl font-bold p-6 rounded-3xl border-2 border-slate-200 focus:border-sky-400 focus:ring-4 focus:ring-sky-100 outline-none transition-all text-center placeholder:text-slate-300"
-              placeholder="Your Name"
+              className="w-full text-2xl font-bold p-5 rounded-3xl border-2 border-slate-200 focus:border-sky-400 focus:ring-4 focus:ring-sky-100 outline-none transition-all placeholder:text-slate-300"
+              placeholder="e.g. Alex"
             />
           </div>
 
           <div className="space-y-2">
-            <label className="text-lg font-bold text-slate-600 ml-1">Pick a buddy</label>
+            <label className="text-lg font-bold text-slate-600 ml-1">Choose an Avatar</label>
             <div className="flex justify-between gap-2 overflow-x-auto pb-2 no-scrollbar">
               {avatars.map(emoji => (
                 <button
@@ -104,7 +109,7 @@ export default function Home() {
             disabled={!nameInput.trim() || createProfileMutation.isPending}
             fullWidth
           >
-            {createProfileMutation.isPending ? "Starting..." : "Let's Go!"}
+            {createProfileMutation.isPending ? "Setting up..." : "Finish Setup"}
           </BigButton>
         </div>
       </div>
@@ -114,21 +119,36 @@ export default function Home() {
   // View 2: Not Logged In
   if (!user) {
     return (
-        <div className="flex flex-col items-center justify-center min-h-[80vh] gap-8 text-center">
-            <div className="w-32 h-32 bg-sky-200 rounded-full flex items-center justify-center mb-4">
+        <div className="flex flex-col items-center justify-center min-h-[80vh] gap-8 text-center px-4">
+            <div className="w-32 h-32 bg-sky-200 rounded-full flex items-center justify-center mb-4 shadow-lg shadow-sky-100 animate-bounce-slow">
                 <span className="text-6xl">🧮</span>
             </div>
             <div>
-                <h1 className="text-4xl font-black text-slate-800 mb-4">MathBits</h1>
-                <p className="text-xl text-slate-500">Fun math for everyone.</p>
+                <h1 className="text-4xl font-black text-slate-800 mb-4 tracking-tight">MathBits</h1>
+                <p className="text-xl text-slate-500 font-medium">Adaptive visual math<br/>for neurodiverse learners.</p>
             </div>
-            <BigButton 
-                onClick={() => base44.auth.redirectToLogin()} 
-                variant="primary" 
-                fullWidth
-            >
-                Start Playing
-            </BigButton>
+            
+            <div className="w-full max-w-sm space-y-4">
+              <BigButton 
+                  onClick={() => base44.auth.redirectToLogin()} 
+                  variant="primary" 
+                  fullWidth
+                  className="text-lg"
+              >
+                  Parents: Sign In / Sign Up
+              </BigButton>
+              <p className="text-xs text-slate-400">Create an account to track progress and customize settings.</p>
+            </div>
+            
+            <style>{`
+              @keyframes bounce-slow {
+                0%, 100% { transform: translateY(-5%); }
+                50% { transform: translateY(5%); }
+              }
+              .animate-bounce-slow {
+                animation: bounce-slow 3s infinite ease-in-out;
+              }
+            `}</style>
         </div>
     );
   }
@@ -169,16 +189,16 @@ export default function Home() {
         </Link>
 
         <div className="grid grid-cols-2 gap-4">
-           <Link to={createPageUrl('ParentDashboard')}>
-            <BigButton variant="secondary" icon={UserIcon} className="h-full flex-col gap-2">
+          <ParentGate onUnlock={() => navigate(createPageUrl('ParentDashboard'))}>
+            <BigButton variant="secondary" icon={UserIcon} className="h-full flex-col gap-2 w-full">
                 Stats
             </BigButton>
-          </Link>
-          <Link to={createPageUrl('Settings')}>
-            <BigButton variant="secondary" icon={SettingsIcon} className="h-full flex-col gap-2">
+          </ParentGate>
+          <ParentGate onUnlock={() => navigate(createPageUrl('Settings'))}>
+            <BigButton variant="secondary" icon={SettingsIcon} className="h-full flex-col gap-2 w-full">
                 Settings
             </BigButton>
-          </Link>
+          </ParentGate>
         </div>
       </div>
 

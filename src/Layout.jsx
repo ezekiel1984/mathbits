@@ -4,8 +4,11 @@ import { Link } from 'react-router-dom';
 import { createPageUrl } from "@/utils";
 import { Settings, Home, User, BarChart2 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
+import ParentGate from "@/components/common/ParentGate";
+import { useNavigate } from 'react-router-dom';
 
 export default function Layout({ children, currentPageName }) {
+  const navigate = useNavigate();
   // Fetch user profile settings to apply global styles like high contrast
   const { data: userProfile } = useQuery({
     queryKey: ['userProfile'],
@@ -51,20 +54,30 @@ export default function Layout({ children, currentPageName }) {
             to={createPageUrl('Home')}
             isHighContrast={isHighContrast}
           />
-          <NavItem 
-            icon={BarChart2} 
-            label="Progress" 
-            isActive={currentPageName === 'ParentDashboard'} 
-            to={createPageUrl('ParentDashboard')} 
-            isHighContrast={isHighContrast}
-          />
-          <NavItem 
-            icon={Settings} 
-            label="Settings" 
-            isActive={currentPageName === 'Settings'} 
-            to={createPageUrl('Settings')} 
-            isHighContrast={isHighContrast}
-          />
+          
+          <ParentGate onUnlock={() => navigate(createPageUrl('ParentDashboard'))}>
+            <div className="pointer-events-none">
+              <NavItem 
+                icon={BarChart2} 
+                label="Progress" 
+                isActive={currentPageName === 'ParentDashboard'} 
+                to="#"
+                isHighContrast={isHighContrast}
+              />
+            </div>
+          </ParentGate>
+
+          <ParentGate onUnlock={() => navigate(createPageUrl('Settings'))}>
+            <div className="pointer-events-none">
+              <NavItem 
+                icon={Settings} 
+                label="Settings" 
+                isActive={currentPageName === 'Settings'} 
+                to="#"
+                isHighContrast={isHighContrast}
+              />
+            </div>
+          </ParentGate>
         </div>
       </nav>
     </div>
