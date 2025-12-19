@@ -9,6 +9,9 @@ Deno.serve(async (req) => {
             return Response.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
+        // SECURITY: Use authenticated user ID
+        const actingUserId = user.id;
+
         // 1. Fetch all active skills
         const skills = await base44.entities.Skills.filter({ isActive: true });
         if (!skills.length) {
@@ -16,7 +19,7 @@ Deno.serve(async (req) => {
         }
 
         // 2. Fetch user's mastery
-        const masteryRecords = await base44.entities.SkillMastery.filter({ userId: user.id });
+        const masteryRecords = await base44.entities.SkillMastery.filter({ userId: actingUserId });
         const masteryMap = new Map(masteryRecords.map(m => [m.skillId, m]));
 
         // 3. Algorithm: Calculate Priority Score
@@ -68,7 +71,7 @@ Deno.serve(async (req) => {
              return Response.json(legacyProblems.sort(() => 0.5 - Math.random()).slice(0, 10));
         }
 
-        // Pick 10 random questions for a full session
+        // Pick 10 random questions
         const shuffled = questions.sort(() => 0.5 - Math.random()).slice(0, 10);
 
         // 6. Map to Game.js format
@@ -107,7 +110,7 @@ Deno.serve(async (req) => {
                 visual_type: visualType,
                 number_1: num1,
                 number_2: num2,
-                answer: q.correctAnswer, // Keep as string for comparison
+                answer: q.correctAnswer, 
                 steps: steps,
                 choices: choices
             };

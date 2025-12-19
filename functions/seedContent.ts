@@ -4,6 +4,23 @@ Deno.serve(async (req) => {
     try {
         const base44 = createClientFromRequest(req);
         
+        const user = await base44.auth.me();
+        if (!user) {
+            return Response.json({ error: 'Unauthorized' }, { status: 401 });
+        }
+
+        // SECURITY CHECK: Only allow admins to seed content
+        const profiles = await base44.entities.UserProfile.filter({ created_by: user.email });
+        const isAdmin = profiles[0]?.is_admin;
+
+        // Exception: Allow seeding if NO skills exist (first run initialization)
+        const existingSkills = await base44.entities.Skills.list({ limit: 1 });
+        const isFirstRun = existingSkills.length === 0;
+
+        if (!isAdmin && !isFirstRun) {
+            return Response.json({ error: 'Forbidden: Admin access required to seed content' }, { status: 403 });
+        }
+        
         // Define Skills and their Questions
         const seedData = [
             {

@@ -9,20 +9,29 @@ Deno.serve(async (req) => {
             return Response.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        const { userId, skillId, questionId, isCorrect, timeTakenSec, hintsUsed } = await req.json();
+        // SECURITY: Trust user.id from auth token, NOT from request body
+        // This prevents users from submitting attempts for others
+        const actingUserId = user.id;
+
+        const { skillId, questionId, isCorrect, timeTakenSec, hintsUsed } = await req.json();
+
+        // Validate required inputs
+        if (!skillId || !questionId) {
+             return Response.json({ error: 'Missing required fields' }, { status: 400 });
+        }
 
         // 1. Insert into Attempts
         await base44.entities.Attempts.create({
-            userId,
+            userId: actingUserId,
             skillId,
             questionId,
-            isCorrect,
-            timeTakenSec,
-            hintsUsed: hintsUsed || 0
+            isCorrect: !!isCorrect,
+            timeTakenSec: Number(timeTakenSec) || 0,
+            hintsUsed: Number(hintsUsed) || 0
         });
 
         // 2. Update SkillMastery
-        const masteryRecords = await base44.entities.SkillMastery.filter({ userId, skillId });
+        const masteryRecords = await base44.entities.SkillMastery.filter({ userId: actingUserId, skillId });
         let masteryRecord = masteryRecords[0];
 
         let currentMastery = masteryRecord ? masteryRecord.masteryScore : 0;
@@ -32,7 +41,7 @@ Deno.serve(async (req) => {
         let newStreak = currentStreak;
 
         if (isCorrect) {
-            const hintPenalty = (hintsUsed || 0) * 1;
+            const hintPenalty = (Number(hintsUsed) || 0) * 1;
             newMastery = Math.min(100, currentMastery + 6 - hintPenalty);
             newStreak = currentStreak + 1;
         } else {
@@ -48,7 +57,7 @@ Deno.serve(async (req) => {
             });
         } else {
             await base44.entities.SkillMastery.create({
-                userId,
+                userId: actingUserId,
                 skillId,
                 masteryScore: newMastery,
                 streak: newStreak,
@@ -56,9 +65,8 @@ Deno.serve(async (req) => {
             });
         }
 
-        // 3. Update Rewards (Points)
-        // Also syncing UserProfile points for backward compatibility with frontend
-        const rewardsRecords = await base44.entities.Rewards.filter({ userId });
+        // 3. Update Rewards
+        const rewardsRecords = await base44.entities.Rewards.filter({ userId: actingUserId });
         let rewardsRecord = rewardsRecords[0];
         
         const profileRecords = await base44.entities.UserProfile.filter({ created_by: user.email });
@@ -73,16 +81,15 @@ Deno.serve(async (req) => {
             await base44.entities.Rewards.update(rewardsRecord.id, { points: newPoints });
         } else {
             await base44.entities.Rewards.create({
-                userId,
+                userId: actingUserId,
                 points: newPoints,
                 badges: "[]",
                 unlockedThemes: "[]"
             });
         }
 
-        // Sync UserProfile points (UI uses this)
+        // Sync UserProfile points
         if (userProfile) {
-             // For UserProfile streak, we might want a different logic (daily streak), but for now let's just update points
              await base44.entities.UserProfile.update(userProfile.id, { points: newPoints });
         }
 
