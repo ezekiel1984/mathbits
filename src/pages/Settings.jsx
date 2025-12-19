@@ -184,9 +184,9 @@ export default function Settings() {
             variant="success" 
             fullWidth 
             icon={Save}
-            disabled={updateMutation.isPending}
+            disabled={updateProfileMutation.isPending || updateSettingsMutation.isPending}
           >
-            {updateMutation.isPending ? "Saving..." : "Save Changes"}
+            {(updateProfileMutation.isPending || updateSettingsMutation.isPending) ? "Saving..." : "Save Changes"}
           </BigButton>
         </div>
       </div>
