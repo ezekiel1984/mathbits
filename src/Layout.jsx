@@ -6,6 +6,7 @@ import { Settings, Home, User, BarChart2 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import ParentGate from "@/components/common/ParentGate";
 import { useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 
 export default function Layout({ children, currentPageName }) {
   const navigate = useNavigate();
@@ -27,11 +28,37 @@ export default function Layout({ children, currentPageName }) {
   const baseText = isHighContrast ? "text-yellow-400" : "text-slate-800";
   const navBg = isHighContrast ? "bg-slate-900 border-t-2 border-yellow-400" : "bg-white/90 backdrop-blur-sm border-t border-sky-100 shadow-lg";
 
+  // PWA & Meta Tags Configuration
+  React.useEffect(() => {
+    // Set basic PWA meta tags dynamically
+    const metaTags = [
+      { name: 'application-name', content: 'MathBits' },
+      { name: 'apple-mobile-web-app-capable', content: 'yes' },
+      { name: 'apple-mobile-web-app-status-bar-style', content: 'black-translucent' },
+      { name: 'apple-mobile-web-app-title', content: 'MathBits' },
+      { name: 'theme-color', content: isHighContrast ? '#0f172a' : '#f0f9ff' },
+      { name: 'viewport', content: 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' } // Prevent zoom for app-like feel
+    ];
+
+    metaTags.forEach(tag => {
+      let element = document.querySelector(`meta[name="${tag.name}"]`);
+      if (!element) {
+        element = document.createElement('meta');
+        element.setAttribute('name', tag.name);
+        document.head.appendChild(element);
+      }
+      element.setAttribute('content', tag.content);
+    });
+
+    document.title = "MathBits";
+  }, [isHighContrast]);
+
   return (
     <div className={`min-h-screen ${baseBg} ${baseText} transition-colors duration-300 font-sans selection:bg-sky-200 selection:text-sky-900 flex flex-col`}>
       <style>{`
         body { 
           overscroll-behavior-y: none; 
+          -webkit-tap-highlight-color: transparent;
         }
         .tap-target {
           min-height: 48px;
@@ -41,7 +68,19 @@ export default function Layout({ children, currentPageName }) {
       
       {/* Main Content Area */}
       <main className="flex-grow w-full max-w-md mx-auto p-4 pb-24 md:max-w-4xl md:p-8">
-        {children}
+        {/* Page Transitions */}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={currentPageName}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2 }}
+            className="h-full"
+          >
+            {children}
+          </motion.div>
+        </AnimatePresence>
       </main>
 
       {/* Bottom Navigation Bar - Mobile First, Accessible */}
