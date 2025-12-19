@@ -24,14 +24,26 @@ export default function Layout({ children, currentPageName }) {
   
   // Base styles
   const baseBg = isHighContrast ? "bg-black" : "bg-sky-50";
+  const themeColor = isHighContrast ? "#000000" : "#f0f9ff"; // sky-50 hex
   const baseText = isHighContrast ? "text-yellow-400" : "text-slate-800";
   const navBg = isHighContrast ? "bg-slate-900 border-t-2 border-yellow-400" : "bg-white/90 backdrop-blur-sm border-t border-sky-100 shadow-lg";
 
   return (
     <div className={`min-h-screen ${baseBg} ${baseText} transition-colors duration-300 font-sans selection:bg-sky-200 selection:text-sky-900 flex flex-col`}>
+      {/* PWA & Mobile Meta Tags (Injected here to work within React tree) */}
+      <meta name="apple-mobile-web-app-capable" content="yes" />
+      <meta name="mobile-web-app-capable" content="yes" />
+      <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+      <meta name="theme-color" content={themeColor} />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+      {/* App Icon (Emoji as Data URI for instant loading) */}
+      <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧮</text></svg>" />
+      <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🧮</text></svg>" />
+      
       <style>{`
         body { 
-          overscroll-behavior-y: none; 
+          overscroll-behavior-y: none;
+          -webkit-tap-highlight-color: transparent;
         }
         .tap-target {
           min-height: 48px;

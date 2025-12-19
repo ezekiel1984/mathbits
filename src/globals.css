@@ -1,3 +1,4 @@
+css
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -53,7 +54,17 @@
   * {
     @apply border-border;
   }
+  html {
+    touch-action: manipulation; /* Disables double-tap zoom */
+  }
   body {
     @apply bg-background text-foreground;
+    -webkit-user-select: none; /* Disable text selection for app-like feel */
+    user-select: none;
+  }
+  /* Allow selection on inputs */
+  input, textarea {
+    -webkit-user-select: text;
+    user-select: text;
   }
 }
