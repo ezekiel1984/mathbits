@@ -11,11 +11,11 @@ export default function BigButton({
   className,
   disabled = false
 }) {
-  const baseStyles = "relative overflow-hidden rounded-3xl p-6 flex items-center justify-center gap-4 transition-all duration-200 shadow-md active:scale-95 disabled:opacity-50 disabled:active:scale-100 touch-manipulation tap-target select-none";
+  const baseStyles = "relative overflow-hidden rounded-2xl p-6 flex items-center justify-center gap-4 transition-all duration-200 shadow-md active:scale-95 disabled:opacity-50 disabled:active:scale-100 touch-manipulation tap-target select-none";
   
   const variants = {
-    primary: "bg-sky-400 text-white hover:bg-sky-500 shadow-sky-200",
-    secondary: "bg-white text-slate-700 border-2 border-slate-200 hover:border-sky-200 hover:bg-sky-50",
+    primary: "bg-[hsl(191,75%,29%)] text-white hover:bg-[hsl(191,75%,35%)] shadow-cyan-200/50",
+    secondary: "bg-white text-slate-700 border-2 border-slate-200 hover:border-[hsl(202,83%,58%)] hover:bg-sky-50",
     success: "bg-emerald-400 text-white hover:bg-emerald-500 shadow-emerald-200",
     danger: "bg-rose-400 text-white hover:bg-rose-500 shadow-rose-200",
     outline: "bg-transparent border-2 border-current hover:bg-black/5"

@@ -24,9 +24,9 @@ export default function Layout({ children, currentPageName }) {
   const isHighContrast = userProfile?.high_contrast;
   
   // Base styles
-  const baseBg = isHighContrast ? "bg-black" : "bg-sky-50";
+  const baseBg = isHighContrast ? "bg-black" : "bg-slate-50"; // Neutral background to let colors pop
   const baseText = isHighContrast ? "text-yellow-400" : "text-slate-800";
-  const navBg = isHighContrast ? "bg-slate-900 border-t-2 border-yellow-400" : "bg-white/90 backdrop-blur-sm border-t border-sky-100 shadow-lg";
+  const navBg = isHighContrast ? "bg-slate-900 border-t-2 border-yellow-400" : "bg-white/90 backdrop-blur-sm border-t border-slate-100 shadow-lg";
 
   // PWA & Meta Tags Configuration
   React.useEffect(() => {
@@ -49,6 +49,24 @@ export default function Layout({ children, currentPageName }) {
       }
       element.setAttribute('content', tag.content);
     });
+
+    // Add Favicon
+    let link = document.querySelector("link[rel~='icon']");
+    if (!link) {
+      link = document.createElement('link');
+      link.rel = 'icon';
+      document.head.appendChild(link);
+    }
+    link.href = 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6943cd50422bb5e9998a81f4/158ba1973_20251219_1510_MinimalisticMathIcon_remix_01kctctz0gfw2r93yvjvc3j675.png';
+
+    // Add Apple Touch Icon
+    let appleLink = document.querySelector("link[rel='apple-touch-icon']");
+    if (!appleLink) {
+        appleLink = document.createElement('link');
+        appleLink.rel = 'apple-touch-icon';
+        document.head.appendChild(appleLink);
+    }
+    appleLink.href = 'https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6943cd50422bb5e9998a81f4/158ba1973_20251219_1510_MinimalisticMathIcon_remix_01kctctz0gfw2r93yvjvc3j675.png';
 
     document.title = "MathBits";
   }, [isHighContrast]);
@@ -124,7 +142,7 @@ export default function Layout({ children, currentPageName }) {
 }
 
 function NavItem({ icon: Icon, label, isActive, to, isHighContrast }) {
-  const activeColor = isHighContrast ? "text-yellow-400 scale-110" : "text-sky-600 scale-110";
+  const activeColor = isHighContrast ? "text-yellow-400 scale-110" : "text-[hsl(191,75%,29%)] scale-110";
   const inactiveColor = isHighContrast ? "text-slate-500" : "text-slate-400";
   
   return (

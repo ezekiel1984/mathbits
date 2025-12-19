@@ -69,10 +69,10 @@ export default function Home() {
           animate={{ opacity: 1, y: 0 }}
           className="text-center"
         >
-          <div className="inline-block bg-sky-100 text-sky-700 px-4 py-1 rounded-full text-sm font-bold mb-4">
-            Parent Setup
-          </div>
-          <h1 className="text-3xl font-black text-slate-800 mb-2">Create Kid Profile</h1>
+          <div className="inline-block bg-cyan-100 text-[hsl(191,75%,29%)] px-4 py-1 rounded-full text-sm font-bold mb-4">
+                Parent Setup
+              </div>
+              <h1 className="text-3xl font-black text-slate-800 mb-2">Create Kid Profile</h1>
           <p className="text-lg text-slate-500">Let's set up the app for your child.</p>
         </motion.div>
 
@@ -120,15 +120,16 @@ export default function Home() {
   if (!user) {
     return (
         <div className="flex flex-col items-center justify-center min-h-[80vh] gap-8 text-center px-4">
-            <div className="w-32 h-32 bg-sky-200 rounded-full flex items-center justify-center mb-4 shadow-lg shadow-sky-100 animate-bounce-slow">
-                <span className="text-6xl">🧮</span>
-            </div>
-            <div>
-                <h1 className="text-4xl font-black text-slate-800 mb-4 tracking-tight">MathBits</h1>
-                <p className="text-xl text-slate-500 font-medium">Adaptive visual math<br/>for neurodiverse learners.</p>
-            </div>
-            
-            <div className="w-full max-w-sm space-y-4">
+            <motion.img 
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ duration: 0.5 }}
+                src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6943cd50422bb5e9998a81f4/ce9dde6dd_20251219_1508_MathBitsLogoDesign_remix_01kctcnhfwejjby1n7jg5yv01v.png"
+                alt="MathBits Logo"
+                className="w-64 max-w-full h-auto drop-shadow-xl animate-bounce-slow"
+            />
+
+            <div className="w-full max-w-sm space-y-4 mt-8">
               <BigButton 
                   onClick={() => base44.auth.redirectToLogin()} 
                   variant="primary" 
@@ -164,12 +165,17 @@ export default function Home() {
           </div>
           <div>
             <h1 className="text-2xl font-black text-slate-800">Hi, {profile.display_name}!</h1>
-            <div className="flex items-center gap-2 text-amber-500 font-bold bg-amber-50 px-3 py-1 rounded-full w-fit">
+            <div className="flex items-center gap-2 text-[hsl(25,91%,58%)] font-bold bg-orange-50 px-3 py-1 rounded-full w-fit">
               <Star className="w-4 h-4 fill-current" />
               <span>{profile.points || 0} stars</span>
             </div>
           </div>
         </div>
+        <img 
+          src="https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/6943cd50422bb5e9998a81f4/158ba1973_20251219_1510_MinimalisticMathIcon_remix_01kctctz0gfw2r93yvjvc3j675.png" 
+          alt="MathBits" 
+          className="w-12 h-12 object-contain opacity-20"
+        />
       </header>
 
       {/* Main Actions */}
@@ -178,24 +184,24 @@ export default function Home() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Link to={createPageUrl('QuestMap')}>
                 <div className="relative group h-full">
-                    <div className="absolute inset-0 bg-sky-400 rounded-3xl blur opacity-20 group-hover:opacity-30 transition-opacity" />
+                    <div className="absolute inset-0 bg-[hsl(191,75%,29%)] rounded-2xl blur opacity-20 group-hover:opacity-30 transition-opacity" />
                     <BigButton 
                         variant="primary" 
                         icon={Play} 
                         fullWidth 
-                        className="h-32 text-2xl shadow-xl shadow-sky-200"
+                        className="h-32 text-2xl shadow-xl shadow-cyan-200/50"
                     >
                         Play Quest
                     </BigButton>
                 </div>
             </Link>
-            
+
             <Link to={createPageUrl('Game') + "?mode=practice"}>
                 <BigButton 
                     variant="success" 
                     icon={Star} 
                     fullWidth 
-                    className="h-32 text-2xl"
+                    className="h-32 text-2xl bg-[hsl(202,83%,58%)] hover:bg-[hsl(202,83%,63%)] text-white border-none shadow-sky-200"
                 >
                     Practice
                 </BigButton>
@@ -205,7 +211,7 @@ export default function Home() {
         {/* Row 2: Rewards & Settings */}
         <div className="grid grid-cols-2 gap-4">
           <Link to={createPageUrl('Rewards')}>
-            <BigButton variant="secondary" icon={Star} className="h-32 flex-col gap-2 w-full text-amber-500 border-amber-200 bg-amber-50">
+            <BigButton variant="secondary" icon={Star} className="h-32 flex-col gap-2 w-full text-[hsl(25,91%,58%)] border-orange-200 bg-orange-50 hover:bg-orange-100">
                 Rewards
             </BigButton>
           </Link>
