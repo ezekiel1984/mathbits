@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from "@/utils";
 import BigButton from "@/components/ui/BigButton";
 import ParentGate from "@/components/common/ParentGate";
+import AdaptivePath from "@/components/home/AdaptivePath";
 import { Play, Star, Settings as SettingsIcon, User as UserIcon } from 'lucide-react';
 
 export default function Dashboard({ profile }) {
@@ -33,6 +34,10 @@ export default function Dashboard({ profile }) {
 
       {/* Main Actions */}
       <div className="space-y-8 mt-4">
+
+        {/* AI Recommendations */}
+        <AdaptivePath />
+
         {/* Primary Action Group */}
         <div className="space-y-4">
             <Link to={createPageUrl('QuestMap')}>

@@ -12,6 +12,9 @@ Deno.serve(async (req) => {
         // SECURITY: Use authenticated user ID
         const actingUserId = user.id;
 
+        // 0. Check for specific skill request
+        const { skillId } = await req.json().catch(() => ({}));
+
         // 1. Fetch all active skills
         const skills = await base44.entities.Skills.filter({ isActive: true });
         if (!skills.length) {
@@ -45,9 +48,23 @@ Deno.serve(async (req) => {
         // Sort by effective score ASC
         scoredSkills.sort((a, b) => a.effectiveScore - b.effectiveScore);
 
-        // Pick top candidate
-        const topCandidates = scoredSkills.slice(0, 3);
-        const selectedSkill = topCandidates[Math.floor(Math.random() * topCandidates.length)];
+        // Pick top candidate OR forced skill
+        let selectedSkill;
+        if (skillId) {
+            selectedSkill = skills.find(s => s.id === skillId);
+            // If requested skill not found, fall back to algorithm
+            if (!selectedSkill) {
+                const topCandidates = scoredSkills.slice(0, 3);
+                selectedSkill = topCandidates[Math.floor(Math.random() * topCandidates.length)];
+            } else {
+                // Attach real score for difficulty calc
+                const m = masteryMap.get(skillId);
+                selectedSkill.realScore = m ? m.masteryScore : 0;
+            }
+        } else {
+            const topCandidates = scoredSkills.slice(0, 3);
+            selectedSkill = topCandidates[Math.floor(Math.random() * topCandidates.length)];
+        }
 
         // 4. Determine Difficulty (Adaptive & Gentle)
         // Slow down progression:

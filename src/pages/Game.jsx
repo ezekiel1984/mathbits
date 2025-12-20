@@ -58,7 +58,7 @@ export default function Game() {
     queryKey: ['mathProblems', mode, skillId],
     queryFn: async () => {
       if (mode === 'practice') {
-          const response = await base44.functions.invoke('getNextQuestion', { userId: user?.id });
+          const response = await base44.functions.invoke('getNextQuestion', { userId: user?.id, skillId: skillId });
           return response.data || [];
       }
       let all = await base44.entities.MathProblem.list();
