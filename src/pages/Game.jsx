@@ -88,8 +88,12 @@ export default function Game() {
 
   // -- Logic --
   const currentProblem = problems[currentProblemIndex];
-  // Apply Step-Chain toggle from settings
-  const isStepMode = (userSettings?.stepChainMode ?? true) && currentProblem?.steps && currentProblem.steps.length > 0;
+  
+  // Apply Step-Chain toggle from settings OR force it if adaptive logic requests it
+  // Default to TRUE for neurodivergent support
+  const isStepMode = ((userSettings?.stepChainMode ?? true) || currentProblem?.forceStepChain) 
+                     && currentProblem?.steps 
+                     && currentProblem.steps.length > 0;
 
   // Determine visuals
   const visualType = currentProblem?.derivedType || currentProblem?.type; // Support both new and legacy

@@ -152,7 +152,7 @@ export default function ParentDashboard() {
           </h2>
           <div className="grid md:grid-cols-3 gap-6">
               <div>
-                  <div className="text-xs font-bold text-indigo-400 uppercase tracking-wider mb-1">Strengths</div>
+                  <div className="text-xs font-bold text-indigo-400 uppercase tracking-wider mb-1">Building Confidence In</div>
                   <p className="text-indigo-900 font-medium">
                       {dashboardData?.improvingSkills.length > 0 
                           ? dashboardData.improvingSkills.map(s => s.name).join(", ") 
@@ -160,15 +160,15 @@ export default function ParentDashboard() {
                   </p>
               </div>
               <div>
-                  <div className="text-xs font-bold text-indigo-400 uppercase tracking-wider mb-1">Current Focus</div>
+                  <div className="text-xs font-bold text-indigo-400 uppercase tracking-wider mb-1">Currently Practicing</div>
                   <p className="text-indigo-900 font-medium">
-                      {dashboardData?.focusSkill?.name || "Exploring Basics"}
+                      {dashboardData?.focusSkill?.name || "Foundational Skills"}
                   </p>
               </div>
               <div>
-                  <div className="text-xs font-bold text-indigo-400 uppercase tracking-wider mb-1">Support Used</div>
+                  <div className="text-xs font-bold text-indigo-400 uppercase tracking-wider mb-1">Helpful Supports</div>
                   <p className="text-indigo-900 font-medium">
-                      Step-Chain Visuals
+                      Step-Chain Mode, No Timer
                   </p>
               </div>
           </div>
@@ -229,14 +229,14 @@ export default function ParentDashboard() {
                             <div className="flex justify-between mb-1">
                                 <span className="font-bold text-slate-700">{domain.name}</span>
                                 <span className="text-xs font-bold text-slate-400 uppercase">
-                                    {domain.avg >= 80 ? "Confident" : domain.avg >= 50 ? "Practising" : "Learning"}
+                                    {domain.avg >= 80 ? "Confident" : domain.avg >= 40 ? "Building Skills" : "Exploring"}
                                 </span>
                             </div>
                             {/* Simplified Progress Bar (no numbers) */}
                             <div className="h-2 bg-slate-50 rounded-full overflow-hidden">
                                 <motion.div 
                                     initial={{ width: 0 }}
-                                    animate={{ width: `${domain.avg}%` }}
+                                    animate={{ width: `${Math.max(5, domain.avg)}%` }} // Always show at least a little bar for encouragement
                                     className="h-full rounded-full bg-sky-200"
                                 />
                             </div>

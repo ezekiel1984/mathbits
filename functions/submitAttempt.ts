@@ -40,12 +40,15 @@ Deno.serve(async (req) => {
         let newMastery = currentMastery;
         let newStreak = currentStreak;
 
+        // Gamification Logic: Reward effort, not just correctness
         if (isCorrect) {
             const hintPenalty = (Number(hintsUsed) || 0) * 1;
-            newMastery = Math.min(100, currentMastery + 6 - hintPenalty);
+            // Slower mastery climb (5 instead of 6) to encourage practice
+            newMastery = Math.min(100, currentMastery + 5 - hintPenalty);
             newStreak = currentStreak + 1;
         } else {
-            newMastery = Math.max(0, currentMastery - 4);
+            // Gentler penalty (2 instead of 4) to reduce frustration
+            newMastery = Math.max(0, currentMastery - 2);
             newStreak = 0;
         }
 
@@ -65,7 +68,8 @@ Deno.serve(async (req) => {
             });
         }
 
-        // 3. Update Rewards
+        // 3. Update Rewards - REWARD EFFORT!
+        // +10 for correct, +5 for trying (incorrect but attempted)
         const rewardsRecords = await base44.entities.Rewards.filter({ userId: actingUserId });
         let rewardsRecord = rewardsRecords[0];
         
@@ -73,7 +77,7 @@ Deno.serve(async (req) => {
         let userProfile = profileRecords[0];
 
         let currentPoints = rewardsRecord ? rewardsRecord.points : (userProfile?.points || 0);
-        let pointsToAdd = isCorrect ? 10 : 2;
+        let pointsToAdd = isCorrect ? 10 : 5; // Reward persistence
         let newPoints = currentPoints + pointsToAdd;
 
         // Update Rewards entity

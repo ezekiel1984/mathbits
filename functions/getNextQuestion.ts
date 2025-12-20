@@ -49,11 +49,29 @@ Deno.serve(async (req) => {
         const topCandidates = scoredSkills.slice(0, 3);
         const selectedSkill = topCandidates[Math.floor(Math.random() * topCandidates.length)];
 
-        // 4. Determine Difficulty
+        // 4. Determine Difficulty (Adaptive & Gentle)
+        // Slow down progression:
+        // < 25: Level 1
+        // 25 - 50: Level 2
+        // 50 - 75: Level 3
+        // > 75: Level 4 (if exists)
         let targetDifficulty = 1;
-        if (selectedSkill.realScore >= 90) targetDifficulty = 4;
-        else if (selectedSkill.realScore >= 60) targetDifficulty = 3;
-        else if (selectedSkill.realScore >= 30) targetDifficulty = 2;
+        if (selectedSkill.realScore >= 75) targetDifficulty = 4;
+        else if (selectedSkill.realScore >= 50) targetDifficulty = 3;
+        else if (selectedSkill.realScore >= 25) targetDifficulty = 2;
+
+        // Check for recent struggles (Adaptive Drop)
+        // Query last 3 attempts for this skill
+        const recentAttempts = await base44.entities.Attempts.filter({ 
+            userId: actingUserId, 
+            skillId: selectedSkill.id 
+        }, '-created_date', 3);
+
+        const recentErrors = recentAttempts.filter(a => !a.isCorrect).length;
+        // If 2 or more recent errors, drop difficulty or stay low
+        if (recentErrors >= 2) {
+             targetDifficulty = Math.max(1, targetDifficulty - 1);
+        }
 
         // 5. Fetch Question
         let questions = await base44.entities.Questions.filter({ 
@@ -112,7 +130,9 @@ Deno.serve(async (req) => {
                 number_2: num2,
                 answer: q.correctAnswer, 
                 steps: steps,
-                choices: choices
+                choices: choices,
+                // Adaptive UX: Force Step-Chain if difficulty was lowered due to errors
+                forceStepChain: recentErrors >= 2 
             };
         });
         
