@@ -146,6 +146,46 @@ Deno.serve(async (req) => {
                     { t: "I have $10. I spend $3. Left?", a: "7", type: "numeric", s: ["10 - 3 = 7."], d: 1 },
                     { t: "5 boxes, 2 toys in each. Total?", a: "10", type: "numeric", s: ["5 groups of 2.", "5 x 2 = 10."], d: 2 }
                 ]
+            },
+            {
+                skill: { name: "Comparing Numbers", domain: "Number", level: 1, description: "Bigger, smaller, equal.", orderIndex: 12 },
+                questions: [
+                    { t: "Which is bigger?", a: "5", type: "multipleChoice", c: ["3", "5"], s: ["5 is more than 3."], d: 1 },
+                    { t: "Which is smaller?", a: "2", type: "multipleChoice", c: ["2", "8"], s: ["2 is less than 8."], d: 1 },
+                    { t: "Is 10 bigger than 1?", a: "Yes", type: "multipleChoice", c: ["Yes", "No"], s: ["10 is much more than 1."], d: 1 },
+                    { t: "Which is the biggest?", a: "9", type: "multipleChoice", c: ["4", "9", "1"], s: ["9 is the highest number here."], d: 2 },
+                    { t: "Which is the smallest?", a: "0", type: "multipleChoice", c: ["5", "0", "10"], s: ["0 means nothing. It is the smallest."], d: 2 }
+                ]
+            },
+            {
+                skill: { name: "Missing Numbers", domain: "Add", level: 2, description: "Find the missing piece.", orderIndex: 13 },
+                questions: [
+                    { t: "2 + ? = 5", a: "3", type: "numeric", s: ["Start at 2.", "Count up to 5.", "3, 4, 5. That's 3 numbers."], d: 1 },
+                    { t: "5 + ? = 10", a: "5", type: "numeric", s: ["You need 5 more to make 10."], d: 1 },
+                    { t: "? + 1 = 4", a: "3", type: "numeric", s: ["What number plus 1 is 4?", "3!"], d: 1 },
+                    { t: "10 - ? = 8", a: "2", type: "numeric", s: ["10 take away 2 is 8."], d: 2 },
+                    { t: "? - 1 = 6", a: "7", type: "numeric", s: ["What number is 1 bigger than 6?", "7."], d: 2 }
+                ]
+            },
+            {
+                skill: { name: "Perimeter Basics", domain: "Geometry", level: 3, description: "Distance around the outside.", orderIndex: 14 },
+                questions: [
+                    { t: "Side A is 2. Side B is 2. Perimeter?", a: "4", type: "numeric", s: ["Add the sides.", "2 + 2 = 4."], d: 1 },
+                    { t: "Square with side 3. Perimeter?", a: "12", type: "numeric", s: ["Square has 4 sides.", "3 + 3 + 3 + 3 = 12."], d: 2 },
+                    { t: "Triangle sides: 2, 2, 2. Perimeter?", a: "6", type: "numeric", s: ["Add all sides.", "2 + 2 + 2 = 6."], d: 1 },
+                    { t: "Rectangle 4 and 1. Perimeter?", a: "10", type: "numeric", s: ["Two sides are 4. Two sides are 1.", "4+4+1+1 = 10."], d: 3 },
+                    { t: "Pentagon (5 sides). Each is 2.", a: "10", type: "numeric", s: ["Count by 2 five times.", "10."], d: 3 }
+                ]
+            },
+            {
+                skill: { name: "Logic Puzzles", domain: "WordProblems", level: 3, description: "Think outside the box.", orderIndex: 15 },
+                questions: [
+                    { t: "I am an odd number after 2.", a: "3", type: "multipleChoice", c: ["2", "3", "4"], s: ["2 is even.", "3 is odd."], d: 1 },
+                    { t: "Double me to get 10.", a: "5", type: "numeric", s: ["5 + 5 = 10."], d: 1 },
+                    { t: "I have 0 corners. Who am I?", a: "Circle", type: "multipleChoice", c: ["Square", "Circle", "Star"], s: ["Circles are round."], d: 1 },
+                    { t: "What comes next: 1, 2, 4, 8...?", a: "16", type: "numeric", s: ["Double the number each time.", "Double 8 is 16."], d: 3 },
+                    { t: "Half of me is 6.", a: "12", type: "numeric", s: ["6 + 6 = 12."], d: 2 }
+                ]
             }
         ];
 
