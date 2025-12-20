@@ -50,8 +50,8 @@ export default function QuestMap() {
       </div>
 
       <div className="max-w-md mx-auto p-4 space-y-8 relative">
-        {/* Path Line */}
-        <div className="absolute left-8 top-12 bottom-0 w-1 bg-slate-200 -z-0" />
+        {/* Dotted Path Line */}
+        <div className="absolute left-8 top-12 bottom-0 w-0 border-l-4 border-dotted border-slate-200 -z-0" />
 
         {skills?.map((skill, index) => {
           const unlocked = isSkillUnlocked(index);
@@ -59,23 +59,20 @@ export default function QuestMap() {
           const score = skillMastery?.masteryScore || 0;
           const isCompleted = score >= 80;
           
-          // Determine if this is the recommended "next" skill (first unlocked but not completed)
-          const isRecommended = unlocked && !isCompleted && (!skills[index-1] || isSkillUnlocked(index-1));
-          // Simplified logic: The first one that is unlocked but not mastered is recommended.
-          // Or actually, just the last unlocked one is usually the frontier.
+          // Determine "Frontier" = First unlocked but not completed
+          const isFrontier = unlocked && !isCompleted && (!skills[index-1] || isSkillUnlocked(index-1) || (mastery?.find(m => m.skillId === skills[index-1].id)?.masteryScore >= 80)); 
+          // Simplified: The active skill the user should work on.
           
-          const isFrontier = unlocked && (!skills[index+1] || !isSkillUnlocked(index+1));
-
           return (
             <motion.div 
               key={skill.id}
-              initial={{ opacity: 0, x: -20 }}
+              initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: index * 0.1 }}
-              className="relative z-10"
+              className="relative z-10 pl-2" // shift slightly to align with center of new dotted line
             >
-               {isFrontier && !isCompleted && (
-                   <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-amber-400 text-white text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full shadow-sm z-20 animate-bounce">
+               {isFrontier && (
+                   <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-[hsl(191,75%,29%)] text-white text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full shadow-md z-20">
                        Start Here
                    </div>
                )}
@@ -83,31 +80,33 @@ export default function QuestMap() {
               <Link 
                 to={unlocked ? createPageUrl('Lesson') + `?skillId=${skill.id}` : '#'}
                 className={`
-                  flex items-center gap-4 p-5 rounded-3xl border-4 transition-all relative
-                  ${isFrontier && !isCompleted
-                    ? "bg-white border-amber-400 shadow-xl shadow-amber-100 scale-105 z-10"
+                  flex items-center gap-4 p-5 rounded-[2rem] transition-all relative
+                  ${isFrontier
+                    ? "bg-white ring-4 ring-sky-100 shadow-xl shadow-sky-100/50 scale-105 z-10"
                     : unlocked 
-                        ? "bg-white border-white shadow-lg shadow-sky-100 hover:scale-105 active:scale-95 cursor-pointer" 
-                        : "bg-slate-50 border-slate-50 opacity-40 grayscale cursor-not-allowed scale-95"}
+                        ? "bg-white shadow-sm hover:shadow-md hover:scale-[1.02] cursor-pointer border border-slate-100" 
+                        : "bg-transparent border border-slate-200 opacity-60 cursor-not-allowed scale-95"}
                 `}
               >
                 <div className={`
-                  w-16 h-16 rounded-2xl flex items-center justify-center text-3xl shrink-0 transition-colors
-                  ${isCompleted ? "bg-emerald-100 text-emerald-500" : (isFrontier ? "bg-amber-100 text-amber-500" : "bg-sky-100 text-sky-500")}
-                  ${!unlocked && "bg-slate-200 text-slate-400"}
+                  w-14 h-14 rounded-2xl flex items-center justify-center text-2xl shrink-0 transition-colors
+                  ${isCompleted ? "bg-emerald-100 text-emerald-500" : (isFrontier ? "bg-[hsl(191,75%,29%)] text-white" : "bg-sky-50 text-sky-400")}
+                  ${!unlocked && "bg-slate-100 text-slate-300"}
                 `}>
-                  {isCompleted ? <CheckCircle className="w-8 h-8" /> : unlocked ? <MapPin className="w-8 h-8" /> : <Lock className="w-8 h-8" />}
+                  {isCompleted ? <CheckCircle className="w-6 h-6 stroke-[3]" /> : unlocked ? <MapPin className="w-6 h-6 stroke-[3]" /> : <Lock className="w-5 h-5" />}
                 </div>
                 
                 <div className="flex-1">
                   <h3 className={`font-black text-lg leading-tight ${unlocked ? "text-slate-800" : "text-slate-400"}`}>{skill.name}</h3>
-                  <p className="text-slate-400 text-xs font-bold uppercase mt-1">{skill.domain}</p>
+                  <div className="flex items-center gap-2 mt-1">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 bg-slate-50 px-2 py-0.5 rounded-full">{skill.domain}</span>
+                      {!unlocked && <span className="text-[10px] font-bold text-slate-400">Coming soon</span>}
+                  </div>
                 </div>
 
                 {isCompleted && (
                   <div className="flex flex-col items-center text-amber-400">
-                    <Star className="w-6 h-6 fill-current" />
-                    <span className="text-xs font-black">Mastered</span>
+                    <Star className="w-5 h-5 fill-current" />
                   </div>
                 )}
               </Link>
@@ -117,7 +116,7 @@ export default function QuestMap() {
 
         {(!skills || skills.length === 0) && (
             <div className="text-center p-8 text-slate-400">
-                No skills found. Ask a parent/admin to add some!
+                No skills found.
             </div>
         )}
       </div>

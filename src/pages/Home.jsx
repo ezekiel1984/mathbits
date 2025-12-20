@@ -179,17 +179,17 @@ export default function Home() {
       </header>
 
       {/* Main Actions */}
-      <div className="grid gap-4 mt-4">
-        {/* Row 1: Quest & Practice */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="space-y-8 mt-4">
+        {/* Primary Action Group */}
+        <div className="space-y-4">
             <Link to={createPageUrl('QuestMap')}>
-                <div className="relative group h-full">
-                    <div className="absolute inset-0 bg-[hsl(191,75%,29%)] rounded-2xl blur opacity-20 group-hover:opacity-30 transition-opacity" />
+                <div className="relative group">
+                    <div className="absolute inset-0 bg-[hsl(191,75%,29%)] rounded-[2.5rem] blur opacity-20 group-hover:opacity-30 transition-opacity" />
                     <BigButton 
                         variant="primary" 
                         icon={Play} 
                         fullWidth 
-                        className="h-32 text-2xl shadow-xl shadow-cyan-200/50"
+                        className="h-40 text-3xl shadow-2xl"
                     >
                         Play Quest
                     </BigButton>
@@ -198,52 +198,52 @@ export default function Home() {
 
             <Link to={createPageUrl('Game') + "?mode=practice"}>
                 <BigButton 
-                    variant="success" 
+                    variant="secondary" 
                     icon={Star} 
                     fullWidth 
-                    className="h-32 text-2xl bg-[hsl(202,83%,58%)] hover:bg-[hsl(202,83%,63%)] text-white border-none shadow-sky-200"
+                    className="h-24 text-xl bg-sky-100 text-sky-700 hover:bg-sky-200"
                 >
                     Practice
                 </BigButton>
             </Link>
         </div>
 
-        {/* Row 2: Rewards & Settings */}
+        {/* Secondary Actions Row */}
         <div className="grid grid-cols-2 gap-4">
           <Link to={createPageUrl('Rewards')}>
-            <BigButton variant="secondary" icon={Star} className="h-32 flex-col gap-2 w-full text-[hsl(25,91%,58%)] border-orange-200 bg-orange-50 hover:bg-orange-100">
-                Rewards
+            <BigButton variant="outline" icon={Star} className="h-24 flex-col gap-1 w-full text-amber-500 border-amber-200 bg-amber-50/50 hover:bg-amber-100">
+                <span className="text-sm font-bold">Rewards</span>
             </BigButton>
           </Link>
           
           <ParentGate onUnlock={() => navigate(createPageUrl('Settings'))}>
-            <BigButton variant="secondary" icon={SettingsIcon} className="h-32 flex-col gap-2 w-full">
-                Settings
+            <BigButton variant="outline" icon={SettingsIcon} className="h-24 flex-col gap-1 w-full text-slate-400 border-slate-200 hover:bg-slate-50">
+                <span className="text-sm font-bold">Settings</span>
             </BigButton>
           </ParentGate>
         </div>
 
-        {/* Parent Dashboard Link (Small) */}
-        <div className="flex justify-center mt-2">
+        {/* Streak (Visual only, calm) */}
+        <div className="bg-white rounded-[2rem] p-6 shadow-sm border border-slate-50 flex items-center justify-between">
+           <div>
+               <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Weekly Streak</p>
+               <p className="text-lg font-bold text-slate-600">Let's build it!</p>
+           </div>
+           <div className="flex gap-1">
+               {[...Array(5)].map((_, i) => (
+                 <div key={i} className={`w-3 h-8 rounded-full ${i < (profile.streak % 5) ? "bg-amber-400" : "bg-slate-100"}`} />
+               ))}
+           </div>
+        </div>
+
+        {/* Parent Dashboard Link (Discreet) */}
+        <div className="flex justify-center pt-4 opacity-50 hover:opacity-100 transition-opacity">
             <ParentGate onUnlock={() => navigate(createPageUrl('ParentDashboard'))}>
-                <button className="text-sm font-bold text-slate-400 hover:text-sky-500 flex items-center gap-1">
+                <button className="text-xs font-bold text-slate-400 flex items-center gap-2 px-4 py-2 rounded-full hover:bg-slate-50">
                     <UserIcon className="w-4 h-4" /> Parent Dashboard
                 </button>
             </ParentGate>
         </div>
-      </div>
-
-      {/* Today's Streak */}
-      <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100">
-        <h3 className="text-lg font-bold text-slate-400 mb-4 uppercase tracking-wider">Your Streak</h3>
-        <div className="flex justify-between items-center gap-2">
-           {[...Array(5)].map((_, i) => (
-             <div key={i} className={`h-3 flex-1 rounded-full ${i < (profile.streak % 5) ? "bg-amber-400" : "bg-slate-100"}`} />
-           ))}
-        </div>
-        <p className="text-center mt-4 text-slate-500 font-medium">
-            {profile.streak > 0 ? `${profile.streak} days in a row!` : "Start your streak today!"}
-        </p>
       </div>
     </div>
   );
