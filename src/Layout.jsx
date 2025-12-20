@@ -11,17 +11,20 @@ import { motion, AnimatePresence } from 'framer-motion';
 export default function Layout({ children, currentPageName }) {
   const navigate = useNavigate();
   // Fetch user profile settings to apply global styles like high contrast
+  const { data: user } = useQuery({ queryKey: ['me'], queryFn: () => base44.auth.me().catch(() => null) });
+  
   const { data: userProfile } = useQuery({
     queryKey: ['userProfile'],
     queryFn: async () => {
-      const user = await base44.auth.me().catch(() => null);
       if (!user) return null;
       const profiles = await base44.entities.UserProfile.filter({ created_by: user.email });
       return profiles[0] || null;
-    }
+    },
+    enabled: !!user
   });
 
   const isHighContrast = userProfile?.high_contrast;
+  const hideNav = !user || ['Privacy', 'Support'].includes(currentPageName);
   
   // Base styles
   const baseBg = isHighContrast ? "bg-black" : "bg-slate-50"; // Neutral background to let colors pop
@@ -102,41 +105,43 @@ export default function Layout({ children, currentPageName }) {
       </main>
 
       {/* Bottom Navigation Bar - Mobile First, Accessible */}
-      <nav className={`fixed bottom-0 left-0 right-0 ${navBg} z-50`}>
-        <div className="max-w-md mx-auto flex justify-around items-center p-4 md:max-w-4xl">
-          <NavItem 
-            icon={Home} 
-            label="Home" 
-            isActive={currentPageName === 'Home'} 
-            to={createPageUrl('Home')}
-            isHighContrast={isHighContrast}
-          />
-          
-          <ParentGate onUnlock={() => navigate(createPageUrl('ParentDashboard'))}>
-            <div className="pointer-events-none">
-              <NavItem 
-                icon={BarChart2} 
-                label="Progress" 
-                isActive={currentPageName === 'ParentDashboard'} 
-                to="#"
-                isHighContrast={isHighContrast}
-              />
-            </div>
-          </ParentGate>
+      {!hideNav && (
+        <nav className={`fixed bottom-0 left-0 right-0 ${navBg} z-50`}>
+          <div className="max-w-md mx-auto flex justify-around items-center p-4 md:max-w-4xl">
+            <NavItem 
+              icon={Home} 
+              label="Home" 
+              isActive={currentPageName === 'Home'} 
+              to={createPageUrl('Home')}
+              isHighContrast={isHighContrast}
+            />
+            
+            <ParentGate onUnlock={() => navigate(createPageUrl('ParentDashboard'))}>
+              <div className="pointer-events-none">
+                <NavItem 
+                  icon={BarChart2} 
+                  label="Progress" 
+                  isActive={currentPageName === 'ParentDashboard'} 
+                  to="#"
+                  isHighContrast={isHighContrast}
+                />
+              </div>
+            </ParentGate>
 
-          <ParentGate onUnlock={() => navigate(createPageUrl('Settings'))}>
-            <div className="pointer-events-none">
-              <NavItem 
-                icon={Settings} 
-                label="Settings" 
-                isActive={currentPageName === 'Settings'} 
-                to="#"
-                isHighContrast={isHighContrast}
-              />
-            </div>
-          </ParentGate>
-        </div>
-      </nav>
+            <ParentGate onUnlock={() => navigate(createPageUrl('Settings'))}>
+              <div className="pointer-events-none">
+                <NavItem 
+                  icon={Settings} 
+                  label="Settings" 
+                  isActive={currentPageName === 'Settings'} 
+                  to="#"
+                  isHighContrast={isHighContrast}
+                />
+              </div>
+            </ParentGate>
+          </div>
+        </nav>
+      )}
     </div>
   );
 }
