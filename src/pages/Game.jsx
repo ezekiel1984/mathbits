@@ -21,6 +21,8 @@ export default function Game() {
   const [input, setInput] = useState("");
   const [feedback, setFeedback] = useState(null); // 'correct', 'incorrect', null
   const [showSettings, setShowSettings] = useState(false);
+  const [aiExplanation, setAiExplanation] = useState(null);
+  const [isExplaining, setIsExplaining] = useState(false);
   
   // Step Chain State
   const [currentStep, setCurrentStep] = useState(0);
@@ -140,12 +142,29 @@ export default function Game() {
       setTimeout(() => {
           if (val === undefined) setInput(""); // Clear if text input
           setFeedback(null);
-      }, 1000);
+      }, 1500);
     }
+  };
+
+  const handleExplain = async () => {
+      setIsExplaining(true);
+      try {
+          const res = await base44.functions.invoke('explainStep', { 
+              questionText: currentProblem.question_text,
+              steps: currentProblem.steps,
+              gradeLevel: profile?.current_grade || 'K'
+          });
+          setAiExplanation(res.data.explanation);
+      } catch (e) {
+          console.error(e);
+      } finally {
+          setIsExplaining(false);
+      }
   };
 
   const handleNextProblem = () => {
     setFeedback(null);
+    setAiExplanation(null);
     setInput("");
     setCurrentStep(0);
 
@@ -269,34 +288,77 @@ export default function Game() {
           key={currentProblem.id + "text"}
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          className="text-4xl md:text-6xl font-black text-slate-800 mb-6 text-center"
+          className="text-4xl md:text-6xl font-black text-slate-800 mb-6 text-center select-none"
         >
           {currentProblem.question_text}
         </motion.h2>
 
         {/* Visuals */}
-        <VisualCounter 
-          count={visualCount} 
-          type={currentProblem.visual_type || 'blocks'} 
-          highlightIndices={getHighlights()}
-          size="md"
-        />
+        <div className="flex-1 flex flex-col items-center justify-center w-full max-w-2xl px-4">
+            <VisualCounter 
+              count={visualCount} 
+              type={currentProblem.visual_type || 'blocks'} 
+              highlightIndices={getHighlights()}
+              size="md"
+            />
+    
+            {/* Step Chain UI */}
+            {isStepMode && feedback !== 'correct' && !aiExplanation && (
+              <div className="mt-8 w-full">
+                <StepChain 
+                    goal={currentProblem.question_text}
+                    steps={currentProblem.steps} 
+                    expandedDefault={userSettings?.stepChainMode ?? true}
+                />
+              </div>
+            )}
 
-        {/* Step Chain UI */}
-        {isStepMode && feedback !== 'correct' && (
-          <StepChain 
-            goal={currentProblem.question_text}
-            steps={currentProblem.steps} 
-            expandedDefault={userSettings?.stepChainMode ?? true}
-          />
-        )}
+            {/* AI Explanation Display */}
+            <AnimatePresence>
+                {aiExplanation && (
+                    <motion.div 
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        className="mt-6 bg-amber-50 rounded-2xl p-6 w-full text-left space-y-3 border border-amber-100 shadow-sm"
+                    >
+                        <h3 className="text-amber-600 font-bold uppercase text-xs tracking-wider mb-2">Helpful Hints</h3>
+                        {aiExplanation.map((step, i) => (
+                            <div key={i} className="flex gap-3 items-start">
+                                <div className="bg-amber-200 text-amber-800 w-6 h-6 rounded-full flex items-center justify-center font-bold text-xs shrink-0 mt-0.5">{i+1}</div>
+                                <p className="text-slate-700 font-medium">{step}</p>
+                            </div>
+                        ))}
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </div>
       </div>
 
       {/* Input Area */}
-      <div className="mt-auto pt-4 bg-white/80 backdrop-blur-md border-t border-slate-100 -mx-4 px-4 pb-4">
+      <div className="mt-auto pt-4 bg-white/90 backdrop-blur-xl border-t border-slate-100 -mx-4 px-4 pb-8 z-20 shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.1)]">
+
+        {/* Feedback / AI Help Row */}
+        <div className="flex justify-center mb-4 min-h-[24px]">
+             {feedback === 'incorrect' ? (
+                 <motion.span initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-slate-400 font-bold text-sm">
+                     Let's try that again...
+                 </motion.span>
+             ) : (
+                 !aiExplanation && (
+                     <button 
+                        onClick={handleExplain}
+                        disabled={isExplaining}
+                        className="text-sky-500 text-sm font-bold hover:text-sky-600 transition-colors flex items-center gap-1 disabled:opacity-50"
+                     >
+                        {isExplaining ? "Thinking..." : "Explain another way?"}
+                     </button>
+                 )
+             )}
+        </div>
+
         {currentProblem?.type === 'multipleChoice' && currentProblem.choices ? (
             // Multiple Choice UI
-            <div className="grid grid-cols-2 gap-3 max-w-sm mx-auto mb-4">
+            <div className="grid grid-cols-2 gap-4 max-w-md mx-auto mb-4">
                 {currentProblem.choices.map((choice, idx) => (
                     <motion.button
                         key={idx}

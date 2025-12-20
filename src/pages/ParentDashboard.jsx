@@ -115,7 +115,7 @@ export default function ParentDashboard() {
             <ArrowLeft className="w-6 h-6 text-slate-400" />
           </div>
         </Link>
-        <h1 className="text-3xl font-black text-slate-800">Parent Dashboard</h1>
+        <h1 className="text-3xl font-black text-slate-800">Parent Insights</h1>
       </div>
 
       {/* Profile Card (Editable) */}
@@ -145,19 +145,48 @@ export default function ParentDashboard() {
           </div>
       </div>
 
+      {/* Weekly Summary Card */}
+      <div className="bg-indigo-50 rounded-3xl p-6 border border-indigo-100">
+          <h2 className="text-lg font-bold text-indigo-900 mb-4 flex items-center gap-2">
+              <Award className="w-5 h-5" /> Weekly Highlights
+          </h2>
+          <div className="grid md:grid-cols-3 gap-6">
+              <div>
+                  <div className="text-xs font-bold text-indigo-400 uppercase tracking-wider mb-1">Strengths</div>
+                  <p className="text-indigo-900 font-medium">
+                      {dashboardData?.improvingSkills.length > 0 
+                          ? dashboardData.improvingSkills.map(s => s.name).join(", ") 
+                          : "Just getting started!"}
+                  </p>
+              </div>
+              <div>
+                  <div className="text-xs font-bold text-indigo-400 uppercase tracking-wider mb-1">Current Focus</div>
+                  <p className="text-indigo-900 font-medium">
+                      {dashboardData?.focusSkill?.name || "Exploring Basics"}
+                  </p>
+              </div>
+              <div>
+                  <div className="text-xs font-bold text-indigo-400 uppercase tracking-wider mb-1">Support Used</div>
+                  <p className="text-indigo-900 font-medium">
+                      Step-Chain Visuals
+                  </p>
+              </div>
+          </div>
+      </div>
+
       {/* Main Stats Row */}
       <div className="grid grid-cols-2 gap-4">
-        <div className="bg-amber-50 p-6 rounded-3xl border border-amber-100">
-            <div className="flex items-center gap-2 mb-2 text-amber-600 font-bold text-sm uppercase">
-                <Flame className="w-4 h-4" /> Current Streak
+        <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
+            <div className="flex items-center gap-2 mb-2 text-amber-500 font-bold text-xs uppercase tracking-wider">
+                <Flame className="w-4 h-4" /> Consistency
             </div>
-            <div className="text-4xl font-black text-amber-700">{profile.streak || 0} <span className="text-lg font-medium text-amber-600/60">days</span></div>
+            <div className="text-3xl font-black text-slate-700">{profile.streak || 0} <span className="text-sm font-bold text-slate-400">days</span></div>
         </div>
-        <div className="bg-indigo-50 p-6 rounded-3xl border border-indigo-100">
-            <div className="flex items-center gap-2 mb-2 text-indigo-600 font-bold text-sm uppercase">
+        <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
+            <div className="flex items-center gap-2 mb-2 text-sky-500 font-bold text-xs uppercase tracking-wider">
                 <Star className="w-4 h-4" /> Total Stars
             </div>
-            <div className="text-4xl font-black text-indigo-700">{profile.points || 0}</div>
+            <div className="text-3xl font-black text-slate-700">{profile.points || 0}</div>
         </div>
       </div>
 
@@ -199,17 +228,16 @@ export default function ParentDashboard() {
                         <div className="flex-1">
                             <div className="flex justify-between mb-1">
                                 <span className="font-bold text-slate-700">{domain.name}</span>
-                                <span className="font-bold text-slate-400">{domain.avg}%</span>
+                                <span className="text-xs font-bold text-slate-400 uppercase">
+                                    {domain.avg >= 80 ? "Confident" : domain.avg >= 50 ? "Practising" : "Learning"}
+                                </span>
                             </div>
-                            <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                            {/* Simplified Progress Bar (no numbers) */}
+                            <div className="h-2 bg-slate-50 rounded-full overflow-hidden">
                                 <motion.div 
                                     initial={{ width: 0 }}
                                     animate={{ width: `${domain.avg}%` }}
-                                    className={`h-full rounded-full ${
-                                        domain.avg >= 80 ? 'bg-emerald-400' :
-                                        domain.avg >= 50 ? 'bg-amber-400' :
-                                        'bg-sky-400' // Using sky/amber/emerald for supportive colors
-                                    }`}
+                                    className="h-full rounded-full bg-sky-200"
                                 />
                             </div>
                         </div>
@@ -219,21 +247,7 @@ export default function ParentDashboard() {
         )}
       </div>
 
-      {/* Skills Improving */}
-      {dashboardData?.improvingSkills.length > 0 && (
-          <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm">
-            <h3 className="text-sm font-bold text-slate-400 uppercase mb-4 flex items-center gap-2">
-                <TrendingUp className="w-4 h-4" /> Skills Improving This Week
-            </h3>
-            <div className="flex flex-wrap gap-2">
-                {dashboardData.improvingSkills.map(skill => (
-                    <div key={skill.id} className="bg-emerald-50 text-emerald-700 px-3 py-1.5 rounded-lg text-sm font-bold border border-emerald-100">
-                        {skill.name}
-                    </div>
-                ))}
-            </div>
-          </div>
-      )}
+
       
       {/* Recent History List */}
        <div className="bg-white rounded-3xl shadow-sm border border-slate-100 overflow-hidden">

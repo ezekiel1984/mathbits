@@ -58,6 +58,13 @@ export default function QuestMap() {
           const skillMastery = mastery?.find(m => m.skillId === skill.id);
           const score = skillMastery?.masteryScore || 0;
           const isCompleted = score >= 80;
+          
+          // Determine if this is the recommended "next" skill (first unlocked but not completed)
+          const isRecommended = unlocked && !isCompleted && (!skills[index-1] || isSkillUnlocked(index-1));
+          // Simplified logic: The first one that is unlocked but not mastered is recommended.
+          // Or actually, just the last unlocked one is usually the frontier.
+          
+          const isFrontier = unlocked && (!skills[index+1] || !isSkillUnlocked(index+1));
 
           return (
             <motion.div 
@@ -67,31 +74,40 @@ export default function QuestMap() {
               transition={{ delay: index * 0.1 }}
               className="relative z-10"
             >
+               {isFrontier && !isCompleted && (
+                   <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-amber-400 text-white text-[10px] font-black uppercase tracking-widest px-3 py-1 rounded-full shadow-sm z-20 animate-bounce">
+                       Start Here
+                   </div>
+               )}
+
               <Link 
                 to={unlocked ? createPageUrl('Lesson') + `?skillId=${skill.id}` : '#'}
                 className={`
-                  flex items-center gap-4 p-4 rounded-3xl border-4 transition-all
-                  ${unlocked 
-                    ? "bg-white border-white shadow-lg shadow-sky-100 hover:scale-105 active:scale-95 cursor-pointer" 
-                    : "bg-slate-100 border-slate-100 opacity-70 grayscale cursor-not-allowed"}
+                  flex items-center gap-4 p-5 rounded-3xl border-4 transition-all relative
+                  ${isFrontier && !isCompleted
+                    ? "bg-white border-amber-400 shadow-xl shadow-amber-100 scale-105 z-10"
+                    : unlocked 
+                        ? "bg-white border-white shadow-lg shadow-sky-100 hover:scale-105 active:scale-95 cursor-pointer" 
+                        : "bg-slate-50 border-slate-50 opacity-40 grayscale cursor-not-allowed scale-95"}
                 `}
               >
                 <div className={`
-                  w-16 h-16 rounded-2xl flex items-center justify-center text-3xl shrink-0
-                  ${isCompleted ? "bg-emerald-100 text-emerald-500" : unlocked ? "bg-sky-100 text-sky-500" : "bg-slate-200 text-slate-400"}
+                  w-16 h-16 rounded-2xl flex items-center justify-center text-3xl shrink-0 transition-colors
+                  ${isCompleted ? "bg-emerald-100 text-emerald-500" : (isFrontier ? "bg-amber-100 text-amber-500" : "bg-sky-100 text-sky-500")}
+                  ${!unlocked && "bg-slate-200 text-slate-400"}
                 `}>
                   {isCompleted ? <CheckCircle className="w-8 h-8" /> : unlocked ? <MapPin className="w-8 h-8" /> : <Lock className="w-8 h-8" />}
                 </div>
                 
                 <div className="flex-1">
-                  <h3 className="font-black text-slate-700 text-lg leading-tight">{skill.name}</h3>
-                  <p className="text-slate-400 text-xs font-bold uppercase">{skill.domain}</p>
+                  <h3 className={`font-black text-lg leading-tight ${unlocked ? "text-slate-800" : "text-slate-400"}`}>{skill.name}</h3>
+                  <p className="text-slate-400 text-xs font-bold uppercase mt-1">{skill.domain}</p>
                 </div>
 
                 {isCompleted && (
                   <div className="flex flex-col items-center text-amber-400">
                     <Star className="w-6 h-6 fill-current" />
-                    <span className="text-xs font-black">{score}%</span>
+                    <span className="text-xs font-black">Mastered</span>
                   </div>
                 )}
               </Link>
