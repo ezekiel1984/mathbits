@@ -7,6 +7,7 @@ import Lesson from './pages/Lesson';
 import Rewards from './pages/Rewards';
 import Support from './pages/Support';
 import Privacy from './pages/Privacy';
+import LandingPage from './pages/LandingPage';
 import __Layout from './Layout.jsx';
 
 
@@ -20,6 +21,7 @@ export const PAGES = {
     "Rewards": Rewards,
     "Support": Support,
     "Privacy": Privacy,
+    "LandingPage": LandingPage,
 }
 
 export const pagesConfig = {

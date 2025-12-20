@@ -24,7 +24,7 @@ export default function Layout({ children, currentPageName }) {
   });
 
   const isHighContrast = userProfile?.high_contrast;
-  const hideNav = !user || ['Privacy', 'Support'].includes(currentPageName);
+  const hideNav = !user || ['Privacy', 'Support', 'LandingPage'].includes(currentPageName);
   
   // Base styles
   const baseBg = isHighContrast ? "bg-black" : "bg-slate-50"; // Neutral background to let colors pop
