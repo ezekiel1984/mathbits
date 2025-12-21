@@ -123,7 +123,7 @@ export default function ParentDashboard() {
       <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
           <div className="flex gap-4 items-center">
               <div className="w-16 h-16 bg-slate-50 rounded-2xl overflow-hidden border border-slate-100 flex items-center justify-center">
-                  <MathBitsCompanion id={profile.companion_id} size="sm" />
+                  <MathBitsCompanion id={profile.companion_id} size="md" />
               </div>
               <div className="flex-1">
                   <label className="text-xs font-bold text-slate-400 uppercase">Child Name</label>
