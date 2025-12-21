@@ -157,7 +157,8 @@ export default function Game() {
           const res = await base44.functions.invoke('explainStep', { 
               questionText: currentProblem.question_text,
               steps: currentProblem.steps,
-              gradeLevel: profile?.current_grade || 'K'
+              gradeLevel: profile?.current_grade || 'K',
+              userAnswer: input
           });
           setAiExplanation(res.data.explanation);
       } catch (e) {

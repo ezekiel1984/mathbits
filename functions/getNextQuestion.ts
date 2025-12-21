@@ -88,7 +88,7 @@ Deno.serve(async (req) => {
              targetDifficulty = Math.max(1, targetDifficulty - 1);
         }
 
-        // 5. Fetch Question
+        // 5. Fetch or Generate Question
         let questions = await base44.entities.Questions.filter({ 
             skillId: selectedSkill.id,
             difficulty: targetDifficulty 
@@ -98,14 +98,75 @@ Deno.serve(async (req) => {
             questions = await base44.entities.Questions.filter({ skillId: selectedSkill.id });
         }
 
-        // Fallback to legacy
+        // --- AI GENERATION FALLBACK ---
+        // If DB is empty, use AI to generate fresh tailored problems
+        if (!questions.length) {
+             try {
+                 const genPrompt = `
+                 Generate 3 unique math questions for:
+                 - Skill: ${selectedSkill.name} (${selectedSkill.domain})
+                 - Difficulty: ${targetDifficulty} (1=Simple, 5=Complex)
+                 - Format: JSON
+                 
+                 Schema per question:
+                 {
+                    "promptText": "Question text (e.g. 5 + 3 = ?)",
+                    "questionType": "numeric" | "multipleChoice",
+                    "correctAnswer": "8",
+                    "hintStepChain": ["Step 1", "Step 2"],
+                    "visualType": "blocks" | "apples" | "stars" | "numbers"
+                 }
+                 `;
+
+                 const genRes = await base44.integrations.Core.InvokeLLM({
+                     prompt: genPrompt,
+                     response_json_schema: {
+                         type: "object",
+                         properties: {
+                             questions: {
+                                 type: "array",
+                                 items: {
+                                     type: "object",
+                                     properties: {
+                                         promptText: { type: "string" },
+                                         questionType: { type: "string" },
+                                         correctAnswer: { type: "string" },
+                                         hintStepChain: { type: "array", items: { type: "string" } },
+                                         visualType: { type: "string" }
+                                     },
+                                     required: ["promptText", "correctAnswer"]
+                                 }
+                             }
+                         }
+                     }
+                 });
+
+                 if (genRes.questions && genRes.questions.length > 0) {
+                     // Map AI questions to Entity format temporarily
+                     questions = genRes.questions.map(q => ({
+                         id: 'gen_' + Math.random().toString(36).substr(2, 9), // Ephemeral ID
+                         promptText: q.promptText,
+                         questionType: q.questionType || 'numeric',
+                         correctAnswer: q.correctAnswer,
+                         hintStepChain: JSON.stringify(q.hintStepChain || []),
+                         visualType: q.visualType, // Pass through visual preference
+                         difficulty: targetDifficulty
+                     }));
+                 }
+             } catch (e) {
+                 console.error("AI Generation failed:", e);
+                 // Fallback to legacy if AI fails
+             }
+        }
+
+        // Fallback to legacy if AI also failed/returned nothing
         if (!questions.length) {
              const legacyProblems = await base44.entities.MathProblem.list();
              return Response.json(legacyProblems.sort(() => 0.5 - Math.random()).slice(0, 10));
         }
 
-        // Pick 10 random questions
-        const shuffled = questions.sort(() => 0.5 - Math.random()).slice(0, 10);
+        // Pick up to 10 questions (or all if generated)
+        const shuffled = questions.length > 3 ? questions.sort(() => 0.5 - Math.random()).slice(0, 10) : questions;
 
         // 6. Map to Game.js format
         const mappedQuestions = shuffled.map(q => {

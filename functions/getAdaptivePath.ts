@@ -25,13 +25,16 @@ Deno.serve(async (req) => {
                 name: s.name,
                 domain: s.domain,
                 score: m ? m.masteryScore : 0,
+                streak: m ? m.streak : 0,
                 lastPracticed: m ? m.lastSeenAt : "never"
             };
         });
 
         // 3. AI Analysis
         const prompt = `
-        Analyze this student's math mastery profile (K-6 level) and recommend a personalized practice path.
+        Analyze this student's math mastery profile (K-6 level).
+        - Mastery Score: 0-100 (Goal > 80)
+        - Streak: Current consecutive correct answers (high streak = good flow)
         
         Profile:
         ${JSON.stringify(profileSummary)}

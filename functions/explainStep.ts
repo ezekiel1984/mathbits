@@ -9,20 +9,24 @@ Deno.serve(async (req) => {
             return Response.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
-        const { questionText, steps, gradeLevel } = await req.json();
+        const { questionText, steps, gradeLevel, userAnswer } = await req.json();
 
         const prompt = `
         You are a gentle, encouraging math tutor for a child in grade ${gradeLevel || 'K'}.
-        Explain how to solve this problem: "${questionText}"
         
-        Current known steps: ${JSON.stringify(steps)}
+        The Problem: "${questionText}"
+        ${userAnswer ? `The Student's Wrong Answer: "${userAnswer}"` : ''}
+        
+        Task: Explain the underlying concept to help them fix their mistake.
+        - If they gave a wrong answer, gently explain why that might be (e.g. "It looks like you might have added instead of subtracted?").
+        - Use concrete visual language (blocks, apples, number lines).
+        - Do NOT give the final answer.
+        - Keep it to 3 short, simple sentences maximum.
+        - Be supportive and calm.
 
-        Rules:
-        1. Provide exactly 3 short, simple sentences.
-        2. Use concrete visual language (e.g., "imagine blocks", "groups of apples", "number line").
-        3. Do NOT give the final answer.
-        4. Be extremely concise and calm.
-        5. Format as a JSON array of strings.
+        Current known steps context: ${JSON.stringify(steps)}
+
+        Format as a JSON array of strings (each string is one sentence/step).
         `;
 
         const response = await base44.integrations.Core.InvokeLLM({
