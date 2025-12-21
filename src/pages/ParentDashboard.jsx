@@ -5,6 +5,7 @@ import { ArrowLeft, Target, Award, Flame, Star, TrendingUp, BookOpen } from 'luc
 import { Link } from 'react-router-dom';
 import { createPageUrl } from "@/utils";
 import BigButton from "@/components/ui/BigButton";
+import MathBitsCompanion from "@/components/common/MathBitsCompanion";
 import { motion } from 'framer-motion';
 
 export default function ParentDashboard() {
