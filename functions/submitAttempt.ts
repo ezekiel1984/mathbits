@@ -93,16 +93,79 @@ Deno.serve(async (req) => {
             });
         }
 
-        // Sync UserProfile points
+        // Sync UserProfile points & Handle Daily Streak
+        let userStreak = userProfile.streak || 0;
+        let streakUpdated = false;
+        
         if (userProfile) {
-             await base44.entities.UserProfile.update(userProfile.id, { points: newPoints });
+             const today = new Date().toISOString().split('T')[0];
+             const lastPractice = userProfile.last_practice_date;
+             
+             let newStreakValue = userStreak;
+
+             if (lastPractice !== today) {
+                 // Check if it was yesterday
+                 const yesterday = new Date();
+                 yesterday.setDate(yesterday.getDate() - 1);
+                 const yesterdayStr = yesterday.toISOString().split('T')[0];
+
+                 if (lastPractice === yesterdayStr) {
+                     newStreakValue += 1;
+                 } else {
+                     newStreakValue = 1; // Reset or Start
+                 }
+                 streakUpdated = true;
+             }
+             
+             userStreak = newStreakValue;
+
+             await base44.entities.UserProfile.update(userProfile.id, { 
+                 points: newPoints,
+                 streak: newStreakValue,
+                 last_practice_date: today
+             });
+        }
+
+        // --- BADGE LOGIC ---
+        let currentBadges = [];
+        try {
+            currentBadges = JSON.parse(rewardsRecord?.badges || "[]");
+        } catch (e) { currentBadges = []; }
+
+        const newBadges = [];
+        const definitions = [
+            { id: 'first_win', name: 'First Steps', icon: '🌱', description: 'Complete your first question', condition: () => isCorrect && currentPoints > 0 },
+            { id: 'streak_3', name: 'On Fire', icon: '🔥', description: 'Reach a 3-day streak', condition: () => userStreak >= 3 },
+            { id: 'streak_7', name: 'Unstoppable', icon: '🚀', description: 'Reach a 7-day streak', condition: () => userStreak >= 7 },
+            { id: 'collector_100', name: 'Star Collector', icon: '⭐', description: 'Earn 100 Stars', condition: () => newPoints >= 100 },
+            { id: 'collector_500', name: 'Super Star', icon: '🌟', description: 'Earn 500 Stars', condition: () => newPoints >= 500 },
+            { id: 'master_1', name: 'Smarty Pants', icon: '🧠', description: 'Reach 100% Mastery in a skill', condition: () => newMastery === 100 }
+        ];
+
+        let badgeUnlocked = false;
+        for (const def of definitions) {
+            const hasBadge = currentBadges.find(b => b.id === def.id);
+            if (!hasBadge && def.condition()) {
+                const badgeObj = { id: def.id, name: def.name, icon: def.icon, description: def.description, unlocked: true, date: new Date().toISOString() };
+                currentBadges.push(badgeObj);
+                newBadges.push(badgeObj);
+                badgeUnlocked = true;
+            }
+        }
+
+        if (badgeUnlocked && rewardsRecord) {
+            await base44.entities.Rewards.update(rewardsRecord.id, { badges: JSON.stringify(currentBadges) });
+        } else if (badgeUnlocked && !rewardsRecord) {
+             // Should have been created above, but just in case
         }
 
         return Response.json({
             masteryScore: newMastery,
-            streak: newStreak,
+            streak: newStreak, // Skill streak
+            userStreak: userStreak, // Daily streak
             points: newPoints,
-            pointsAdded: pointsToAdd
+            pointsAdded: pointsToAdd,
+            newBadges: newBadges
         });
 
     } catch (error) {

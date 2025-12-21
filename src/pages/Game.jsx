@@ -9,6 +9,7 @@ import { createPageUrl } from "@/utils";
 import BigButton from "@/components/ui/BigButton";
 import VisualCounter from "@/components/game/VisualCounter";
 import RewardAnimation from "@/components/game/RewardAnimation";
+import { toast } from "sonner";
 import StepChain from "@/components/game/StepChain";
 import StimulusDial from "@/components/game/StimulusDial";
 import MathBitsCompanion from "@/components/common/MathBitsCompanion";
@@ -135,6 +136,22 @@ export default function Game() {
             isCorrect: isCorrect,
             timeTakenSec: 10, // TODO: Implement timer
             hintsUsed: 0 // TODO: Implement hint tracking
+        }, {
+            onSuccess: (data) => {
+                if (data.data.newBadges && data.data.newBadges.length > 0) {
+                    data.data.newBadges.forEach(badge => {
+                        toast.custom((t) => (
+                          <div className="bg-white rounded-2xl p-4 shadow-xl border-2 border-amber-200 flex items-center gap-4 animate-bounce-in">
+                              <div className="text-4xl">{badge.icon}</div>
+                              <div>
+                                  <p className="font-bold text-amber-600 uppercase text-xs">New Badge Unlocked!</p>
+                                  <p className="font-black text-slate-800 text-lg">{badge.name}</p>
+                              </div>
+                          </div>
+                        ), { duration: 5000 });
+                    });
+                }
+            }
         });
     }
 

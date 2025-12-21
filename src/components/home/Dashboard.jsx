@@ -20,9 +20,21 @@ export default function Dashboard({ profile }) {
           </div>
           <div>
             <h1 className="text-2xl font-black text-slate-800">Hi, {profile.display_name}!</h1>
-            <div className="flex items-center gap-2 text-[hsl(25,91%,58%)] font-bold bg-orange-50 px-3 py-1 rounded-full w-fit">
-              <Star className="w-4 h-4 fill-current" />
-              <span>{profile.points || 0} stars</span>
+            <div className="flex flex-col">
+                <div className="flex items-center gap-2 text-[hsl(25,91%,58%)] font-bold bg-orange-50 px-3 py-1 rounded-full w-fit mb-1">
+                  <Star className="w-4 h-4 fill-current" />
+                  <span>{profile.points || 0} stars</span>
+                </div>
+                {/* Level Progress */}
+                <div className="flex items-center gap-2 text-xs font-bold text-slate-400">
+                    <span>Lvl {Math.floor((profile.points || 0) / 100) + 1}</span>
+                    <div className="w-20 h-2 bg-slate-100 rounded-full overflow-hidden">
+                        <div 
+                            className="h-full bg-emerald-400 rounded-full transition-all duration-1000" 
+                            style={{ width: `${(profile.points || 0) % 100}%` }} 
+                        />
+                    </div>
+                </div>
             </div>
           </div>
         </div>

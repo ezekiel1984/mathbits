@@ -28,13 +28,22 @@ export default function Rewards() {
     enabled: !!user
   });
 
-  // Mock themes/badges if not present
-  const badges = rewards?.badges ? JSON.parse(rewards.badges) : [
-    { id: 'first_win', name: 'First Win', icon: '🏆', unlocked: true },
-    { id: 'math_whiz', name: 'Math Whiz', icon: '🧠', unlocked: false },
-    { id: 'speed_demon', name: 'Speedster', icon: '⚡', unlocked: false },
-    { id: 'streak_week', name: 'On Fire', icon: '🔥', unlocked: false },
+  // Badges Data
+  const earnedBadges = rewards?.badges ? JSON.parse(rewards.badges) : [];
+  
+  const allBadges = [
+    { id: 'first_win', name: 'First Steps', icon: '🌱', description: 'Complete your first question' },
+    { id: 'streak_3', name: 'On Fire', icon: '🔥', description: 'Reach a 3-day streak' },
+    { id: 'streak_7', name: 'Unstoppable', icon: '🚀', description: 'Reach a 7-day streak' },
+    { id: 'collector_100', name: 'Star Collector', icon: '⭐', description: 'Earn 100 Stars' },
+    { id: 'collector_500', name: 'Super Star', icon: '🌟', description: 'Earn 500 Stars' },
+    { id: 'master_1', name: 'Smarty Pants', icon: '🧠', description: 'Reach 100% Mastery' }
   ];
+
+  const badges = allBadges.map(def => {
+      const earned = earnedBadges.find(b => b.id === def.id);
+      return { ...def, unlocked: !!earned };
+  });
 
   return (
     <div className="min-h-screen bg-amber-50">
