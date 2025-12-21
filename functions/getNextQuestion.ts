@@ -162,7 +162,17 @@ Deno.serve(async (req) => {
         // Fallback to legacy if AI also failed/returned nothing
         if (!questions.length) {
              const legacyProblems = await base44.entities.MathProblem.list();
-             return Response.json(legacyProblems.sort(() => 0.5 - Math.random()).slice(0, 10));
+             // Map legacy to uniform structure compatible with mappedQuestions logic below
+             questions = legacyProblems.map(p => ({
+                 id: p.id,
+                 promptText: p.question_text,
+                 questionType: 'numeric', // Default for legacy
+                 correctAnswer: String(p.answer),
+                 hintStepChain: JSON.stringify(p.steps || []),
+                 visualType: p.visual_type,
+                 difficulty: p.difficulty || 1,
+                 choices: JSON.stringify([]) 
+             }));
         }
 
         // Pick up to 10 questions (or all if generated)

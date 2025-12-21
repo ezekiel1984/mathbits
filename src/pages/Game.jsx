@@ -85,6 +85,10 @@ export default function Game() {
             streak: streak
         }));
         queryClient.invalidateQueries({ queryKey: ['profile'] });
+    },
+    onError: (error) => {
+        console.error("Failed to submit attempt:", error);
+        toast.error("Oops! Couldn't save your progress. Please check your internet connection.");
     }
   });
 
