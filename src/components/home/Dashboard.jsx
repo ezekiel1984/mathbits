@@ -4,6 +4,7 @@ import { createPageUrl } from "@/utils";
 import BigButton from "@/components/ui/BigButton";
 import ParentGate from "@/components/common/ParentGate";
 import AdaptivePath from "@/components/home/AdaptivePath";
+import MathBitsCompanion from "@/components/common/MathBitsCompanion";
 import { Play, Star, Settings as SettingsIcon, User as UserIcon } from 'lucide-react';
 
 export default function Dashboard({ profile }) {
@@ -14,12 +15,8 @@ export default function Dashboard({ profile }) {
       {/* Header */}
       <header className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <div className="w-16 h-16 bg-white rounded-2xl shadow-sm overflow-hidden border-2 border-slate-100">
-             {profile.avatar_url?.startsWith('http') ? (
-                <img src={profile.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
-             ) : (
-                <div className="w-full h-full flex items-center justify-center text-4xl">{profile.avatar_url || "🦊"}</div>
-             )}
+          <div className="w-16 h-16 bg-white rounded-2xl shadow-sm overflow-hidden border-2 border-slate-100 flex items-center justify-center">
+             <MathBitsCompanion id={profile.companion_id} size="md" />
           </div>
           <div>
             <h1 className="text-2xl font-black text-slate-800">Hi, {profile.display_name}!</h1>
