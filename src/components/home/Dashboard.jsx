@@ -14,8 +14,12 @@ export default function Dashboard({ profile }) {
       {/* Header */}
       <header className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <div className="w-16 h-16 bg-white rounded-2xl shadow-sm flex items-center justify-center text-4xl border-2 border-slate-100">
-            {profile.avatar_url || "🦊"}
+          <div className="w-16 h-16 bg-white rounded-2xl shadow-sm overflow-hidden border-2 border-slate-100">
+             {profile.avatar_url?.startsWith('http') ? (
+                <img src={profile.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
+             ) : (
+                <div className="w-full h-full flex items-center justify-center text-4xl">{profile.avatar_url || "🦊"}</div>
+             )}
           </div>
           <div>
             <h1 className="text-2xl font-black text-slate-800">Hi, {profile.display_name}!</h1>
