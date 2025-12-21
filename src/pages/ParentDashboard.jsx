@@ -106,6 +106,7 @@ export default function ParentDashboard() {
 
 
   if (!profile) return <div className="p-8 text-center text-slate-400">Loading profile...</div>;
+  if (!dashboardData && skills.length > 0) return <div className="p-8 text-center text-slate-400">Analyzing data...</div>;
 
   return (
     <div className="space-y-8 pb-24">
@@ -155,7 +156,7 @@ export default function ParentDashboard() {
               <div>
                   <div className="text-xs font-bold text-indigo-400 uppercase tracking-wider mb-1">Building Confidence In</div>
                   <p className="text-indigo-900 font-medium">
-                      {dashboardData?.improvingSkills.length > 0 
+                      {dashboardData?.improvingSkills?.length > 0 
                           ? dashboardData.improvingSkills.map(s => s.name).join(", ") 
                           : "Foundational Skills"}
                   </p>
@@ -215,7 +216,7 @@ export default function ParentDashboard() {
             Progress by Domain
         </h3>
         
-        {!dashboardData?.domainList.length ? (
+        {!dashboardData?.domainList?.length ? (
             <div className="text-center p-8 bg-slate-50 rounded-3xl text-slate-400">
                 No progress data yet. Start playing!
             </div>
