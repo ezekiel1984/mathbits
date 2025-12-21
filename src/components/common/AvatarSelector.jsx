@@ -1,59 +1,48 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { cn } from "@/lib/utils";
+import { Check } from 'lucide-react';
+import MathBitsCompanion, { COMPANIONS } from './MathBitsCompanion';
 
-const AVATAR_URLS = [
-  "https://images.unsplash.com/photo-1596464716127-f2a82984de30?w=400&h=400&fit=crop&q=80", // Rabbit (Cartoon/Toy)
-  "https://images.unsplash.com/photo-1585110396000-c9a96db275c4?w=400&h=400&fit=crop&q=80", // Hedgehog (Cartoon/Toy)
-  "https://images.unsplash.com/photo-1605559424843-9e4c228bf1c2?w=400&h=400&fit=crop&q=80", // Bear (Cartoon/Toy)
-  "https://images.unsplash.com/photo-1596464716486-14e9def6c997?w=400&h=400&fit=crop&q=80", // Fox (Cartoon/Toy)
-  "https://images.unsplash.com/photo-1585110396150-327c53d0891d?w=400&h=400&fit=crop&q=80", // Lion (Cartoon/Toy)
-  "https://images.unsplash.com/photo-1557002665-c54d241ea099?w=400&h=400&fit=crop&q=80", // Monster 1
-  "https://images.unsplash.com/photo-1563204988-518296c0517f?w=400&h=400&fit=crop&q=80", // Monster 2
-  "https://images.unsplash.com/photo-1559419610-189f37913504?w=400&h=400&fit=crop&q=80"  // Monster 3
-];
+export default function AvatarSelector({ selectedCompanionId, onSelect }) {
+  // Fallback to first if invalid ID
+  const activeId = COMPANIONS.find(c => c.id === selectedCompanionId) ? selectedCompanionId : 'blocky';
 
-// Export URLs so they can be used for defaults in other components
-export { AVATAR_URLS };
-
-export default function AvatarSelector({ selectedAvatar, onSelect }) {
   return (
-    <div className="space-y-2">
-      <label className="text-sm font-bold text-slate-400 uppercase tracking-wider">Choose Your Avatar</label>
-      <div className="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 gap-3">
-        {AVATAR_URLS.map((avatarUrl, index) => (
-          <motion.button
-            key={index}
-            onClick={() => onSelect(avatarUrl)}
-            whileTap={{ scale: 0.9 }}
-            className={cn(
-              "relative w-full aspect-square rounded-full overflow-hidden border-4 transition-all bg-white",
-              selectedAvatar === avatarUrl
-                ? "border-sky-500 shadow-lg ring-2 ring-sky-300 scale-105" // Selected style
-                : "border-slate-100 hover:border-sky-300"
-            )}
-          >
-            <img 
-              src={avatarUrl} 
-              alt={`Avatar ${index + 1}`} 
-              className="w-full h-full object-cover" 
-              loading="lazy"
-            />
-            {selectedAvatar === avatarUrl && (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.5 }}
-                animate={{ opacity: 1, scale: 1 }}
-                className="absolute inset-0 flex items-center justify-center bg-sky-500/30 text-white"
-              >
-                <div className="bg-sky-500 rounded-full p-1">
-                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M5 13l4 4L19 7"></path>
-                  </svg>
-                </div>
-              </motion.div>
-            )}
-          </motion.button>
-        ))}
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+         <label className="text-sm font-bold text-slate-400 uppercase tracking-wider">Choose Companion</label>
+      </div>
+      
+      <div className="grid grid-cols-1 gap-4">
+        {COMPANIONS.map((companion) => {
+          const isSelected = activeId === companion.id;
+          
+          return (
+            <motion.button
+              key={companion.id}
+              onClick={() => onSelect(companion.id)}
+              whileTap={{ scale: 0.98 }}
+              className={`
+                relative p-4 rounded-3xl border-2 text-left transition-all duration-300 flex items-center gap-4
+                ${isSelected 
+                  ? "bg-white border-sky-400 shadow-md ring-4 ring-sky-50" 
+                  : "bg-white border-slate-100 hover:border-slate-200 hover:bg-slate-50"}
+              `}
+            >
+              <div className="shrink-0">
+                 <MathBitsCompanion id={companion.id} size="md" />
+              </div>
+
+              <div className="flex-1">
+                  <div className="flex items-center gap-2">
+                      <h3 className={`font-bold text-lg ${companion.color}`}>{companion.name}</h3>
+                      {isSelected && <Check className="w-5 h-5 text-sky-500" />}
+                  </div>
+                  <p className="text-slate-500 text-sm leading-tight mt-1">{companion.description}</p>
+              </div>
+            </motion.button>
+          );
+        })}
       </div>
     </div>
   );

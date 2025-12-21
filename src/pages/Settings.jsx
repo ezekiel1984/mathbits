@@ -7,50 +7,50 @@ import { createPageUrl } from "@/utils";
 import BigButton from "@/components/ui/BigButton";
 import StimulusDial from "@/components/game/StimulusDial";
 import { Switch } from "@/components/ui/switch";
-import AvatarSelector, { AVATAR_URLS } from "@/components/common/AvatarSelector";
+import AvatarSelector from "@/components/common/AvatarSelector";
 
-export default function Settings() {
-  const queryClient = useQueryClient();
-  const { data: user } = useQuery({ queryKey: ['me'], queryFn: () => base44.auth.me() });
-  
-  const { data: profile } = useQuery({
-    queryKey: ['profile'],
-    queryFn: async () => {
-      const profiles = await base44.entities.UserProfile.filter({ created_by: user.email });
-      return profiles[0];
-    },
-    enabled: !!user
-  });
+      export default function Settings() {
+        const queryClient = useQueryClient();
+        const { data: user } = useQuery({ queryKey: ['me'], queryFn: () => base44.auth.me() });
 
-  const { data: userSettings } = useQuery({
-    queryKey: ['settings'],
-    queryFn: async () => {
-      const res = await base44.entities.Settings.filter({ userId: user.id });
-      return res[0] || null;
-    },
-    enabled: !!user
-  });
+        const { data: profile } = useQuery({
+          queryKey: ['profile'],
+          queryFn: async () => {
+            const profiles = await base44.entities.UserProfile.filter({ created_by: user.email });
+            return profiles[0];
+          },
+          enabled: !!user
+        });
 
-  const [formData, setFormData] = useState({
-    display_name: "",
-    stimulus_level: 1, // Default from Settings schema is 1
-    high_contrast: false,
-    current_grade: "K",
-    step_chain_mode: true,
-    avatar_url: AVATAR_URLS[0]
-  });
+        const { data: userSettings } = useQuery({
+          queryKey: ['settings'],
+          queryFn: async () => {
+            const res = await base44.entities.Settings.filter({ userId: user.id });
+            return res[0] || null;
+          },
+          enabled: !!user
+        });
 
-  useEffect(() => {
-    if (profile) {
-    setFormData(prev => ({
-      ...prev,
-      display_name: profile.display_name,
-      high_contrast: profile.high_contrast,
-      current_grade: profile.current_grade,
-      avatar_url: profile.avatar_url || AVATAR_URLS[0]
-    }));
-    }
-  }, [profile]);
+        const [formData, setFormData] = useState({
+          display_name: "",
+          stimulus_level: 1, 
+          high_contrast: false,
+          current_grade: "K",
+          step_chain_mode: true,
+          companion_id: "blocky"
+        });
+
+        useEffect(() => {
+          if (profile) {
+          setFormData(prev => ({
+            ...prev,
+            display_name: profile.display_name,
+            high_contrast: profile.high_contrast,
+            current_grade: profile.current_grade,
+            companion_id: profile.companion_id || "blocky"
+          }));
+          }
+        }, [profile]);
 
   useEffect(() => {
     if (userSettings) {
@@ -85,7 +85,7 @@ export default function Settings() {
             display_name: formData.display_name,
             high_contrast: formData.high_contrast,
             current_grade: formData.current_grade,
-            avatar_url: formData.avatar_url
+            companion_id: formData.companion_id
         });
     }
 
@@ -115,8 +115,8 @@ export default function Settings() {
 
       <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 space-y-6">
         <AvatarSelector 
-            selectedAvatar={formData.avatar_url}
-            onSelect={(url) => setFormData(prev => ({ ...prev, avatar_url: url }))}
+            selectedCompanionId={formData.companion_id}
+            onSelect={(id) => setFormData(prev => ({ ...prev, companion_id: id }))}
         />
 
         {/* Child's Name */}

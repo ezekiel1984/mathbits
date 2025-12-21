@@ -11,6 +11,7 @@ import VisualCounter from "@/components/game/VisualCounter";
 import RewardAnimation from "@/components/game/RewardAnimation";
 import StepChain from "@/components/game/StepChain";
 import StimulusDial from "@/components/game/StimulusDial";
+import MathBitsCompanion from "@/components/common/MathBitsCompanion";
 
 export default function Game() {
   const navigate = useNavigate();
@@ -238,16 +239,17 @@ export default function Game() {
             <ArrowLeft className="w-8 h-8 text-slate-500" />
           </button>
         </Link>
-        <div className="text-sm font-bold text-slate-400 mr-2">
-           {currentProblemIndex + 1}/10
+        
+        {/* Companion Feedback Center */}
+        <div className="flex-1 flex justify-center">
+            <MathBitsCompanion 
+                id={profile?.companion_id} 
+                size="sm"
+                state={feedback === 'correct' ? 'happy' : feedback === 'incorrect' ? 'thinking' : 'idle'}
+                stimulusLevel={userSettings?.stimulusLevel ?? 1}
+            />
         </div>
-        <div className="h-4 flex-1 mx-4 bg-slate-100 rounded-full overflow-hidden">
-          <motion.div 
-            className="h-full bg-sky-400"
-            initial={{ width: 0 }}
-            animate={{ width: `${((currentProblemIndex) / problems.length) * 100}%` }}
-          />
-        </div>
+
         <button 
           onClick={() => setShowSettings(!showSettings)}
           className={`p-2 rounded-xl transition-colors ${showSettings ? "bg-sky-100 text-sky-500" : "hover:bg-slate-100 text-slate-400"}`}
