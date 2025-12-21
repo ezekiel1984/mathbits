@@ -1,17 +1,17 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import BigButton from "@/components/ui/BigButton";
-import AvatarSelector, { AVATAR_URLS } from "@/components/common/AvatarSelector";
+import AvatarSelector from "@/components/common/AvatarSelector";
 
 export default function Onboarding({ onSubmit, isPending }) {
   const [nameInput, setNameInput] = useState("");
-  const [selectedAvatar, setSelectedAvatar] = useState(AVATAR_URLS[0]);
+  const [selectedCompanionId, setSelectedCompanionId] = useState("blocky");
 
   const handleCreateProfile = () => {
     if (!nameInput.trim()) return;
     onSubmit({
       display_name: nameInput,
-      avatar_url: selectedAvatar,
+      companion_id: selectedCompanionId,
       stimulus_level: 3,
       current_grade: "K"
     });
@@ -44,7 +44,7 @@ export default function Onboarding({ onSubmit, isPending }) {
         </div>
 
         <div className="space-y-2">
-          <AvatarSelector selectedAvatar={selectedAvatar} onSelect={setSelectedAvatar} />
+          <AvatarSelector selectedCompanionId={selectedCompanionId} onSelect={setSelectedCompanionId} />
         </div>
 
         <BigButton 
