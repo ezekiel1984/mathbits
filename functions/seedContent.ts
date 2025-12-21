@@ -23,168 +23,108 @@ Deno.serve(async (req) => {
         
         // Define Skills and their Questions - K-6 Curriculum Aligned
         // Focus: Concrete steps, visual prompts, progressive difficulty
+        // Updated based on neurodivergent learning research: Visual first, step-chain enabled, concrete language.
         const seedData = [
-            // --- K-1: Foundations (Counting, Basic Add/Sub, Shapes) ---
+            // --- K-1: Foundations ---
             {
-                skill: { name: "Count to 10", domain: "Number", level: 1, description: "Count objects one by one up to 10.", orderIndex: 1 },
+                skill: { name: "Counting to 10", domain: "Number", level: 1, description: "Count objects one by one up to 10.", orderIndex: 1 },
                 questions: [
                     { t: "How many blocks?", a: "3", type: "multipleChoice", c: ["2", "3", "4"], s: ["Touch each block.", "1... 2... 3."], d: 1 },
                     { t: "Count the stars.", a: "5", type: "numeric", s: ["Point to the stars.", "1, 2, 3, 4, 5."], d: 1 },
                     { t: "How many apples?", a: "2", type: "multipleChoice", c: ["1", "2", "3"], s: ["One apple.", "Two apples."], d: 1 },
                     { t: "Count the dots.", a: "4", type: "numeric", s: ["Count carefully.", "1... 2... 3... 4."], d: 1 },
                     { t: "How many cars?", a: "1", type: "numeric", s: ["Just one car."], d: 1 },
-                    { t: "Count the blue balls.", a: "6", type: "numeric", s: ["We have 5.", "And 1 more makes 6."], d: 2 },
-                    { t: "How many fish?", a: "7", type: "multipleChoice", c: ["6", "7", "8"], s: ["Count the group.", "There are 7 fish."], d: 2 },
-                    { t: "Count the cats.", a: "8", type: "numeric", s: ["4 cats... plus 4 more.", "That makes 8."], d: 2 },
-                    { t: "How many fingers?", a: "10", type: "numeric", s: ["5 on one hand.", "5 on the other.", "10 fingers total."], d: 2 }
+                    { t: "How many fingers?", a: "10", type: "numeric", s: ["5 on one hand.", "5 on the other.", "10 fingers total."], d: 2 },
+                    { t: "Count the cats.", a: "8", type: "numeric", s: ["4 cats... plus 4 more.", "That makes 8."], d: 2 }
                 ]
             },
             {
-                skill: { name: "Add within 10", domain: "Add", level: 1, description: "Putting groups together.", orderIndex: 2 },
+                skill: { name: "Compare Numbers", domain: "Number", level: 1, description: "Bigger, smaller, equal.", orderIndex: 2 },
                 questions: [
-                    { t: "1 block + 1 block = ?", a: "2", type: "multipleChoice", c: ["1", "2", "3"], s: ["Start with 1.", "Add 1 more.", "Now you have 2."], d: 1 },
-                    { t: "2 + 1 = ?", a: "3", type: "numeric", s: ["Start with 2.", "Count 1 up: 3."], d: 1 },
-                    { t: "3 + 2 = ?", a: "5", type: "multipleChoice", c: ["4", "5", "6"], s: ["Start with 3 blocks.", "Add 2 more blocks.", "3... 4, 5."], d: 2 },
-                    { t: "4 + 1 = ?", a: "5", type: "numeric", s: ["You have 4.", "Get 1 more.", "That makes 5."], d: 1 },
-                    { t: "5 + 5 = ?", a: "10", type: "numeric", s: ["5 fingers on left hand.", "5 fingers on right hand.", "10 fingers total."], d: 2 },
-                    { t: "2 + 2 = ?", a: "4", type: "numeric", s: ["Double 2 is 4."], d: 1 },
-                    { t: "6 + 3 = ?", a: "9", type: "numeric", s: ["Start at 6.", "Count up: 7, 8, 9."], d: 2 },
-                    { t: "0 + 5 = ?", a: "5", type: "numeric", s: ["Zero means nothing.", "So it stays 5."], d: 1 }
+                    { t: "Which is bigger?", a: "5", type: "multipleChoice", c: ["3", "5"], s: ["5 blocks is more than 3 blocks."], d: 1 },
+                    { t: "Which is smaller?", a: "2", type: "multipleChoice", c: ["2", "8"], s: ["2 dots is less than 8 dots."], d: 1 },
+                    { t: "Is 10 bigger than 1?", a: "Yes", type: "multipleChoice", c: ["Yes", "No"], s: ["10 is a big pile.", "1 is just one."], d: 1 }
                 ]
             },
             {
-                skill: { name: "Subtract within 10", domain: "Sub", level: 1, description: "Taking away from a group.", orderIndex: 3 },
-                questions: [
-                    { t: "2 - 1 = ?", a: "1", type: "multipleChoice", c: ["1", "2", "0"], s: ["Show 2 fingers.", "Put 1 down.", "1 left."], d: 1 },
-                    { t: "3 - 1 = ?", a: "2", type: "numeric", s: ["Start with 3 blocks.", "Take 1 away.", "2 left."], d: 1 },
-                    { t: "5 - 2 = ?", a: "3", type: "numeric", s: ["Start with 5.", "Count back: 4... 3."], d: 2 },
-                    { t: "4 - 4 = ?", a: "0", type: "numeric", s: ["Take them all away.", "Zero left."], d: 1 },
-                    { t: "10 - 1 = ?", a: "9", type: "numeric", s: ["One less than 10 is 9."], d: 1 },
-                    { t: "8 - 0 = ?", a: "8", type: "numeric", s: ["Take nothing away.", "Stays 8."], d: 1 },
-                    { t: "6 - 3 = ?", a: "3", type: "numeric", s: ["6 is two groups of 3.", "Take one group away.", "3 left."], d: 2 }
-                ]
-            },
-            {
-                skill: { name: "Shapes & Patterns", domain: "Geometry", level: 1, description: "Identify basic shapes.", orderIndex: 4 },
+                skill: { name: "Shapes", domain: "Geometry", level: 1, description: "Identify basic shapes.", orderIndex: 3 },
                 questions: [
                     { t: "Which is round?", a: "Circle", type: "multipleChoice", c: ["Square", "Circle", "Triangle"], s: ["A circle is round like a ball."], d: 1 },
                     { t: "Which has 3 sides?", a: "Triangle", type: "multipleChoice", c: ["Square", "Circle", "Triangle"], s: ["Count the sides: 1, 2, 3.", "Triangle!"], d: 1 },
-                    { t: "Which has 4 equal sides?", a: "Square", type: "multipleChoice", c: ["Rectangle", "Square", "Star"], s: ["Look for the box shape.", "All sides same length."], d: 1 },
-                    { t: "How many corners on a Square?", a: "4", type: "numeric", s: ["Count the pointy corners.", "1, 2, 3, 4."], d: 1 },
-                    { t: "Is a door a Circle?", a: "No", type: "multipleChoice", c: ["Yes", "No"], s: ["A door has straight sides.", "A circle is curvy."], d: 1 }
+                    { t: "Which has 4 equal sides?", a: "Square", type: "multipleChoice", c: ["Rectangle", "Square", "Star"], s: ["Look for the box shape.", "All sides same length."], d: 1 }
                 ]
             },
-            // --- Years 2-3: Building Fluency (Add/Sub 20+, Mult Intro) ---
             {
-                skill: { name: "Skip Counting", domain: "Number", level: 2, description: "Count by 2s, 5s, 10s.", orderIndex: 5 },
+                skill: { name: "Add within 5", domain: "Add", level: 1, description: "Putting small groups together.", orderIndex: 4 },
+                questions: [
+                    { t: "1 block + 1 block = ?", a: "2", type: "multipleChoice", c: ["1", "2", "3"], s: ["Start with 1 block.", "Add 1 more block.", "Now you have 2."], d: 1 },
+                    { t: "2 + 1 = ?", a: "3", type: "numeric", s: ["Start with 2 dots.", "Add 1 dot.", "1, 2... 3."], d: 1 },
+                    { t: "3 + 2 = ?", a: "5", type: "multipleChoice", c: ["4", "5", "6"], s: ["3 blocks.", "Add 2 blocks.", "3... 4, 5."], d: 2 }
+                ]
+            },
+             {
+                skill: { name: "Add within 10", domain: "Add", level: 1, description: "Adding up to 10.", orderIndex: 5 },
+                questions: [
+                    { t: "5 + 1 = ?", a: "6", type: "numeric", s: ["Start with 5.", "Count 1 more.", "6."], d: 1 },
+                    { t: "5 + 5 = ?", a: "10", type: "numeric", s: ["5 fingers.", "5 fingers.", "10 fingers total."], d: 2 },
+                    { t: "4 + 4 = ?", a: "8", type: "numeric", s: ["Double 4 is 8."], d: 2 }
+                ]
+            },
+            // --- Years 2-3: Building Fluency ---
+            {
+                skill: { name: "Skip Counting", domain: "Number", level: 2, description: "Count by 2s, 5s, 10s.", orderIndex: 6 },
                 questions: [
                     { t: "2, 4, 6, ?", a: "8", type: "multipleChoice", c: ["7", "8", "9"], s: ["We are counting by 2s.", "6 + 2 = 8."], d: 1 },
                     { t: "5, 10, 15, ?", a: "20", type: "numeric", s: ["Count by 5s.", "15... 20."], d: 1 },
-                    { t: "10, 20, 30, ?", a: "40", type: "numeric", s: ["Count by 10s.", "3 tens... 4 tens is 40."], d: 1 },
-                    { t: "20, 25, 30, ?", a: "35", type: "numeric", s: ["Add 5 more to 30."], d: 2 },
-                    { t: "8, 10, 12, ?", a: "14", type: "numeric", s: ["Skip count by 2.", "12... 14."], d: 2 }
+                    { t: "10, 20, 30, ?", a: "40", type: "numeric", s: ["Count by 10s.", "3 tens... 4 tens is 40."], d: 1 }
                 ]
             },
             {
-                skill: { name: "Add within 20", domain: "Add", level: 2, description: "Sums up to 20.", orderIndex: 6 },
+                skill: { name: "Add within 20", domain: "Add", level: 2, description: "Sums up to 20.", orderIndex: 7 },
                 questions: [
                     { t: "10 + 5 = ?", a: "15", type: "numeric", s: ["Start at 10.", "Add 5 ones.", "15."], d: 1 },
                     { t: "9 + 2 = ?", a: "11", type: "numeric", s: ["9 is almost 10.", "Take 1 from the 2 to make 10.", "10 + 1 = 11."], d: 2 },
-                    { t: "8 + 8 = ?", a: "16", type: "numeric", s: ["Double 8 is 16."], d: 2 },
-                    { t: "12 + 4 = ?", a: "16", type: "numeric", s: ["2 + 4 = 6.", "So 12 + 4 = 16."], d: 2 },
-                    { t: "7 + 6 = ?", a: "13", type: "numeric", s: ["Double 6 is 12.", "Add 1 more.", "13."], d: 3 }
+                    { t: "8 + 8 = ?", a: "16", type: "numeric", s: ["Double 8 is 16."], d: 2 }
                 ]
             },
             {
-                skill: { name: "Intro to Multiplication", domain: "Mul", level: 2, description: "Groups of numbers.", orderIndex: 7 },
+                skill: { name: "Intro to Multiplication", domain: "Mul", level: 2, description: "Groups of numbers.", orderIndex: 8 },
                 questions: [
-                    { t: "2 groups of 2", a: "4", type: "multipleChoice", c: ["3", "4", "5"], s: ["2 + 2 = 4.", "2 times 2 is 4."], d: 1 },
+                    { t: "2 groups of 2", a: "4", type: "multipleChoice", c: ["3", "4", "5"], s: ["2 blocks + 2 blocks.", "That makes 4."], d: 1 },
                     { t: "3 groups of 5", a: "15", type: "numeric", s: ["Count by 5s three times.", "5, 10, 15."], d: 2 },
-                    { t: "2 x 3 = ?", a: "6", type: "numeric", s: ["Two groups of 3.", "3 + 3 = 6."], d: 2 },
-                    { t: "4 x 1 = ?", a: "4", type: "numeric", s: ["One group of 4.", "Just 4."], d: 1 },
-                    { t: "5 x 2 = ?", a: "10", type: "numeric", s: ["Count by 5s two times.", "5, 10."], d: 2 }
+                    { t: "2 x 3 = ?", a: "6", type: "numeric", s: ["Two groups of 3.", "3 + 3 = 6."], d: 2 }
                 ]
             },
             {
-                skill: { name: "Simple Fractions", domain: "Fractions", level: 2, description: "Halves and Quarters.", orderIndex: 8 },
+                skill: { name: "Simple Fractions", domain: "Fractions", level: 2, description: "Halves and Quarters.", orderIndex: 9 },
                 questions: [
                     { t: "Half of 2 is?", a: "1", type: "numeric", s: ["Share 2 cookies between 2 friends.", "Each gets 1."], d: 1 },
                     { t: "Half of 10 is?", a: "5", type: "numeric", s: ["5 + 5 = 10.", "So half is 5."], d: 2 },
-                    { t: "Which shows 1/2?", a: "1 part of 2", type: "multipleChoice", c: ["1 part of 2", "1 part of 3"], s: ["One out of two pieces."], d: 1 },
-                    { t: "2 quarters make a...", a: "Half", type: "multipleChoice", c: ["Half", "Whole"], s: ["Imagine a pizza.", "2 quarters cover half."], d: 2 },
-                    { t: "4 quarters make...", a: "1 Whole", type: "multipleChoice", c: ["1 Whole", "1 Half"], s: ["All parts together make 1 whole."], d: 2 }
+                    { t: "Which shows 1/2?", a: "1 part of 2", type: "multipleChoice", c: ["1 part of 2", "1 part of 3"], s: ["One out of two pieces."], d: 1 }
                 ]
             },
-            // --- Years 4-6: Advanced Concepts (Mult/Div, Word Problems) ---
+            // --- Years 4-6: Advanced ---
             {
-                skill: { name: "Multiplication Facts", domain: "Mul", level: 3, description: "Fluency with tables.", orderIndex: 9 },
+                skill: { name: "Multiplication Facts", domain: "Mul", level: 3, description: "Fluency with tables.", orderIndex: 10 },
                 questions: [
                     { t: "3 x 3 = ?", a: "9", type: "numeric", s: ["3 groups of 3.", "3, 6, 9."], d: 1 },
                     { t: "4 x 5 = ?", a: "20", type: "numeric", s: ["Count by 5s four times.", "5, 10, 15, 20."], d: 2 },
                     { t: "6 x 2 = ?", a: "12", type: "numeric", s: ["Double 6 is 12."], d: 1 },
-                    { t: "7 x 3 = ?", a: "21", type: "numeric", s: ["7, 14, 21."], d: 3 },
-                    { t: "9 x 2 = ?", a: "18", type: "numeric", s: ["Less than 20.", "Double 9 is 18."], d: 2 },
-                    { t: "8 x 5 = ?", a: "40", type: "numeric", s: ["Half of 8 is 4.", "Add a zero: 40."], d: 2 }
+                    { t: "7 x 3 = ?", a: "21", type: "numeric", s: ["7, 14, 21."], d: 3 }
                 ]
             },
             {
-                skill: { name: "Division Basics", domain: "Div", level: 3, description: "Sharing equally.", orderIndex: 10 },
+                skill: { name: "Arrays and Area", domain: "Mul", level: 3, description: "Visualizing multiplication.", orderIndex: 11 },
+                questions: [
+                    { t: "Array: 2 rows of 3.", a: "6", type: "numeric", s: ["Count the dots.", "3 + 3 = 6."], d: 1 },
+                    { t: "Rectangle 4 by 2. Area?", a: "8", type: "numeric", s: ["4 squares + 4 squares.", "8 squares total."], d: 2 }
+                ]
+            },
+            {
+                skill: { name: "Simple Division", domain: "Div", level: 3, description: "Sharing equally.", orderIndex: 12 },
                 questions: [
                     { t: "10 shared by 2", a: "5", type: "numeric", s: ["Split 10 in half.", "5."], d: 1 },
-                    { t: "12 shared by 3", a: "4", type: "numeric", s: ["How many 3s in 12?", "3, 6, 9, 12.", "Four 3s."], d: 2 },
-                    { t: "8 / 2 = ?", a: "4", type: "numeric", s: ["Half of 8 is 4."], d: 1 },
-                    { t: "20 / 5 = ?", a: "4", type: "numeric", s: ["Count by 5s to 20.", "5, 10, 15, 20.", "That is 4 times."], d: 2 },
-                    { t: "15 / 3 = ?", a: "5", type: "numeric", s: ["Three groups of 5 make 15."], d: 2 }
-                ]
-            },
-            {
-                skill: { name: "Word Problems", domain: "WordProblems", level: 3, description: "Real world math stories.", orderIndex: 11 },
-                questions: [
-                    { t: "I have 5 apples. I buy 5 more. How many?", a: "10", type: "numeric", s: ["5 + 5 = 10."], d: 1 },
-                    { t: "3 cats have how many legs?", a: "12", type: "numeric", s: ["One cat has 4 legs.", "4 + 4 + 4 = 12."], d: 2 },
-                    { t: "Divide 12 cookies among 4 kids.", a: "3", type: "numeric", s: ["12 shared by 4.", "3 each."], d: 2 },
-                    { t: "I have $10. I spend $3. Left?", a: "7", type: "numeric", s: ["10 - 3 = 7."], d: 1 },
-                    { t: "5 boxes, 2 toys in each. Total?", a: "10", type: "numeric", s: ["5 groups of 2.", "5 x 2 = 10."], d: 2 }
-                ]
-            },
-            {
-                skill: { name: "Comparing Numbers", domain: "Number", level: 1, description: "Bigger, smaller, equal.", orderIndex: 12 },
-                questions: [
-                    { t: "Which is bigger?", a: "5", type: "multipleChoice", c: ["3", "5"], s: ["5 is more than 3."], d: 1 },
-                    { t: "Which is smaller?", a: "2", type: "multipleChoice", c: ["2", "8"], s: ["2 is less than 8."], d: 1 },
-                    { t: "Is 10 bigger than 1?", a: "Yes", type: "multipleChoice", c: ["Yes", "No"], s: ["10 is much more than 1."], d: 1 },
-                    { t: "Which is the biggest?", a: "9", type: "multipleChoice", c: ["4", "9", "1"], s: ["9 is the highest number here."], d: 2 },
-                    { t: "Which is the smallest?", a: "0", type: "multipleChoice", c: ["5", "0", "10"], s: ["0 means nothing. It is the smallest."], d: 2 }
-                ]
-            },
-            {
-                skill: { name: "Missing Numbers", domain: "Add", level: 2, description: "Find the missing piece.", orderIndex: 13 },
-                questions: [
-                    { t: "2 + ? = 5", a: "3", type: "numeric", s: ["Start at 2.", "Count up to 5.", "3, 4, 5. That's 3 numbers."], d: 1 },
-                    { t: "5 + ? = 10", a: "5", type: "numeric", s: ["You need 5 more to make 10."], d: 1 },
-                    { t: "? + 1 = 4", a: "3", type: "numeric", s: ["What number plus 1 is 4?", "3!"], d: 1 },
-                    { t: "10 - ? = 8", a: "2", type: "numeric", s: ["10 take away 2 is 8."], d: 2 },
-                    { t: "? - 1 = 6", a: "7", type: "numeric", s: ["What number is 1 bigger than 6?", "7."], d: 2 }
-                ]
-            },
-            {
-                skill: { name: "Perimeter Basics", domain: "Geometry", level: 3, description: "Distance around the outside.", orderIndex: 14 },
-                questions: [
-                    { t: "Side A is 2. Side B is 2. Perimeter?", a: "4", type: "numeric", s: ["Add the sides.", "2 + 2 = 4."], d: 1 },
-                    { t: "Square with side 3. Perimeter?", a: "12", type: "numeric", s: ["Square has 4 sides.", "3 + 3 + 3 + 3 = 12."], d: 2 },
-                    { t: "Triangle sides: 2, 2, 2. Perimeter?", a: "6", type: "numeric", s: ["Add all sides.", "2 + 2 + 2 = 6."], d: 1 },
-                    { t: "Rectangle 4 and 1. Perimeter?", a: "10", type: "numeric", s: ["Two sides are 4. Two sides are 1.", "4+4+1+1 = 10."], d: 3 },
-                    { t: "Pentagon (5 sides). Each is 2.", a: "10", type: "numeric", s: ["Count by 2 five times.", "10."], d: 3 }
-                ]
-            },
-            {
-                skill: { name: "Logic Puzzles", domain: "WordProblems", level: 3, description: "Think outside the box.", orderIndex: 15 },
-                questions: [
-                    { t: "I am an odd number after 2.", a: "3", type: "multipleChoice", c: ["2", "3", "4"], s: ["2 is even.", "3 is odd."], d: 1 },
-                    { t: "Double me to get 10.", a: "5", type: "numeric", s: ["5 + 5 = 10."], d: 1 },
-                    { t: "I have 0 corners. Who am I?", a: "Circle", type: "multipleChoice", c: ["Square", "Circle", "Star"], s: ["Circles are round."], d: 1 },
-                    { t: "What comes next: 1, 2, 4, 8...?", a: "16", type: "numeric", s: ["Double the number each time.", "Double 8 is 16."], d: 3 },
-                    { t: "Half of me is 6.", a: "12", type: "numeric", s: ["6 + 6 = 12."], d: 2 }
+                    { t: "12 shared by 3", a: "4", type: "numeric", s: ["How many 3s in 12?", "3, 6, 9, 12.", "Four 3s."], d: 2 }
                 ]
             }
         ];
@@ -206,9 +146,6 @@ Deno.serve(async (req) => {
             }
 
             // Create questions linked to this skill
-            // First, delete existing questions for this skill to ensure syllabus is pure? 
-            // Better to upsert, but simple create is safer for now. 
-            // Let's check if questions exist.
             const existingQuestions = await base44.entities.Questions.filter({ skillId: skillId });
             
             if (existingQuestions.length === 0) {

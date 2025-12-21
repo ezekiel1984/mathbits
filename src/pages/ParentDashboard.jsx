@@ -160,17 +160,17 @@ export default function ParentDashboard() {
                   <p className="text-indigo-900 font-medium">
                       {dashboardData?.improvingSkills.length > 0 
                           ? dashboardData.improvingSkills.map(s => s.name).join(", ") 
-                          : "Just getting started!"}
+                          : "Foundational Skills"}
                   </p>
               </div>
               <div>
                   <div className="text-xs font-bold text-indigo-400 uppercase tracking-wider mb-1">Currently Practicing</div>
                   <p className="text-indigo-900 font-medium">
-                      {dashboardData?.focusSkill?.name || "Foundational Skills"}
+                      {dashboardData?.focusSkill?.name || "Counting & Shapes"}
                   </p>
               </div>
               <div>
-                  <div className="text-xs font-bold text-indigo-400 uppercase tracking-wider mb-1">Helpful Supports</div>
+                  <div className="text-xs font-bold text-indigo-400 uppercase tracking-wider mb-1">Learning Style Supports</div>
                   <p className="text-indigo-900 font-medium">
                       Step-Chain Mode, No Timer
                   </p>
@@ -233,7 +233,7 @@ export default function ParentDashboard() {
                             <div className="flex justify-between mb-1">
                                 <span className="font-bold text-slate-700">{domain.name}</span>
                                 <span className="text-xs font-bold text-slate-400 uppercase">
-                                    {domain.avg >= 80 ? "Confident" : domain.avg >= 40 ? "Building Skills" : "Exploring"}
+                                    {domain.avg >= 80 ? "Mastering" : domain.avg >= 40 ? "Practicing" : "Exploring"}
                                 </span>
                             </div>
                             {/* Simplified Progress Bar (no numbers) */}

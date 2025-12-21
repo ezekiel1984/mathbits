@@ -3,6 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Lock, X } from 'lucide-react';
 import BigButton from "@/components/ui/BigButton";
 
+import { createPortal } from 'react-dom';
+
 export default function ParentGate({ children, onUnlock, className }) {
   const [isOpen, setIsOpen] = useState(false);
   const [answer, setAnswer] = useState("");
@@ -10,6 +12,7 @@ export default function ParentGate({ children, onUnlock, className }) {
 
   const handleOpen = (e) => {
     e.preventDefault();
+    e.stopPropagation(); // Prevent bubbling
     // Generate simple math challenge
     const n1 = Math.floor(Math.random() * 5) + 2;
     const n2 = Math.floor(Math.random() * 5) + 2;
@@ -33,13 +36,14 @@ export default function ParentGate({ children, onUnlock, className }) {
         {children}
       </div>
 
-      <AnimatePresence>
-        {isOpen && (
+      {isOpen && createPortal(
+        <AnimatePresence>
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[100] flex items-center justify-center p-4"
+            className="fixed inset-0 bg-black/80 backdrop-blur-sm z-[9999] flex items-center justify-center p-4"
+            style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0 }}
           >
             <motion.div 
               initial={{ scale: 0.9, y: 20 }}
@@ -83,8 +87,9 @@ export default function ParentGate({ children, onUnlock, className }) {
               </div>
             </motion.div>
           </motion.div>
-        )}
-      </AnimatePresence>
+        </AnimatePresence>,
+        document.body
+      )}
     </>
   );
 }

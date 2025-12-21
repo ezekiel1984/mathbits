@@ -67,25 +67,23 @@ Deno.serve(async (req) => {
         }
 
         // 4. Determine Difficulty (Adaptive & Gentle)
-        // Slow down progression:
-        // < 25: Level 1
-        // 25 - 50: Level 2
-        // 50 - 75: Level 3
-        // > 75: Level 4 (if exists)
+        // Slow down progression based on mastery score milestones
+        // We only increase difficulty if mastery is robust
         let targetDifficulty = 1;
         if (selectedSkill.realScore >= 75) targetDifficulty = 4;
         else if (selectedSkill.realScore >= 50) targetDifficulty = 3;
         else if (selectedSkill.realScore >= 25) targetDifficulty = 2;
 
-        // Check for recent struggles (Adaptive Drop)
-        // Query last 3 attempts for this skill
+        // Adaptive Drop: If struggling recently, reduce difficulty
         const recentAttempts = await base44.entities.Attempts.filter({ 
             userId: actingUserId, 
             skillId: selectedSkill.id 
         }, '-created_date', 3);
 
+        // Check for 2 consecutive errors in recent history
         const recentErrors = recentAttempts.filter(a => !a.isCorrect).length;
-        // If 2 or more recent errors, drop difficulty or stay low
+        
+        // If 2 or more errors in last 3 attempts, drop difficulty
         if (recentErrors >= 2) {
              targetDifficulty = Math.max(1, targetDifficulty - 1);
         }
