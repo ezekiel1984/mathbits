@@ -76,7 +76,8 @@ Deno.serve(async (req) => {
         const profileRecords = await base44.entities.UserProfile.filter({ created_by: user.email });
         let userProfile = profileRecords[0];
 
-        let currentPoints = rewardsRecord ? rewardsRecord.points : (userProfile?.points || 0);
+        // Use MAX of existing points to prevent regression if entities desync
+        let currentPoints = Math.max(rewardsRecord?.points || 0, userProfile?.points || 0);
         let pointsToAdd = isCorrect ? 10 : 5; // Reward persistence
         let newPoints = currentPoints + pointsToAdd;
 
@@ -100,7 +101,8 @@ Deno.serve(async (req) => {
         return Response.json({
             masteryScore: newMastery,
             streak: newStreak,
-            points: newPoints
+            points: newPoints,
+            pointsAdded: pointsToAdd
         });
 
     } catch (error) {

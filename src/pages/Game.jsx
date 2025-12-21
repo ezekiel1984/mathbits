@@ -73,17 +73,17 @@ export default function Game() {
 
   // -- Mutations --
   const submitAttemptMutation = useMutation({
-    mutationFn: (data) => base44.functions.invoke('submitAttempt', data),
-    onSuccess: (response) => {
-        const { masteryScore, streak, points } = response.data;
-        // Update local session stats
-        setSessionStats(prev => ({
-            correct: prev.correct + (response.data.streak > 0 ? 1 : 0),
-            points: prev.points + (response.data.streak > 0 ? 10 : 2),
-            streak: streak
-        }));
-        queryClient.invalidateQueries({ queryKey: ['profile'] });
-    }
+  mutationFn: (data) => base44.functions.invoke('submitAttempt', data),
+  onSuccess: (response) => {
+      const { masteryScore, streak, points, pointsAdded } = response.data;
+      // Update local session stats
+      setSessionStats(prev => ({
+          correct: prev.correct + (pointsAdded >= 10 ? 1 : 0), // Assuming full points means correct
+          points: prev.points + (pointsAdded || 0),
+          streak: streak
+      }));
+      queryClient.invalidateQueries({ queryKey: ['profile'] });
+  }
   });
 
   // -- Logic --
