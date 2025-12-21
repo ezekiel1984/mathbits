@@ -121,8 +121,12 @@ export default function ParentDashboard() {
       {/* Profile Card (Editable) */}
       <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
           <div className="flex gap-4 items-center">
-              <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center text-4xl border border-slate-100">
-                  {profile.avatar_url}
+              <div className="w-16 h-16 bg-slate-50 rounded-2xl overflow-hidden border border-slate-100">
+                  {profile.avatar_url?.startsWith('http') ? (
+                    <img src={profile.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-3xl">{profile.avatar_url}</div>
+                  )}
               </div>
               <div className="flex-1">
                   <label className="text-xs font-bold text-slate-400 uppercase">Child Name</label>

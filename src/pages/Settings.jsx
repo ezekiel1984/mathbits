@@ -7,6 +7,7 @@ import { createPageUrl } from "@/utils";
 import BigButton from "@/components/ui/BigButton";
 import StimulusDial from "@/components/game/StimulusDial";
 import { Switch } from "@/components/ui/switch";
+import AvatarSelector, { AVATAR_URLS } from "@/components/common/AvatarSelector";
 
 export default function Settings() {
   const queryClient = useQueryClient();
@@ -35,17 +36,19 @@ export default function Settings() {
     stimulus_level: 1, // Default from Settings schema is 1
     high_contrast: false,
     current_grade: "K",
-    step_chain_mode: true
+    step_chain_mode: true,
+    avatar_url: AVATAR_URLS[0]
   });
 
   useEffect(() => {
     if (profile) {
-      setFormData(prev => ({
-        ...prev,
-        display_name: profile.display_name,
-        high_contrast: profile.high_contrast,
-        current_grade: profile.current_grade,
-      }));
+    setFormData(prev => ({
+      ...prev,
+      display_name: profile.display_name,
+      high_contrast: profile.high_contrast,
+      current_grade: profile.current_grade,
+      avatar_url: profile.avatar_url || AVATAR_URLS[0]
+    }));
     }
   }, [profile]);
 
@@ -81,7 +84,8 @@ export default function Settings() {
         await updateProfileMutation.mutateAsync({
             display_name: formData.display_name,
             high_contrast: formData.high_contrast,
-            current_grade: formData.current_grade
+            current_grade: formData.current_grade,
+            avatar_url: formData.avatar_url
         });
     }
 
@@ -110,6 +114,11 @@ export default function Settings() {
       </div>
 
       <div className="bg-white rounded-3xl p-6 shadow-sm border border-slate-100 space-y-6">
+        <AvatarSelector 
+            selectedAvatar={formData.avatar_url}
+            onSelect={(url) => setFormData(prev => ({ ...prev, avatar_url: url }))}
+        />
+
         {/* Child's Name */}
         <div className="space-y-2">
           <label className="text-sm font-bold text-slate-400 uppercase tracking-wider">Child's Name</label>

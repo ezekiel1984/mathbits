@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import BigButton from "@/components/ui/BigButton";
+import AvatarSelector, { AVATAR_URLS } from "@/components/common/AvatarSelector";
 
 export default function Onboarding({ onSubmit, isPending }) {
   const [nameInput, setNameInput] = useState("");
-  const [selectedAvatar, setSelectedAvatar] = useState("🦊");
-  const avatars = ["🦊", "🐼", "🦁", "🐸", "🐙", "🦄"];
+  const [selectedAvatar, setSelectedAvatar] = useState(AVATAR_URLS[0]);
 
   const handleCreateProfile = () => {
     if (!nameInput.trim()) return;
@@ -44,18 +44,7 @@ export default function Onboarding({ onSubmit, isPending }) {
         </div>
 
         <div className="space-y-2">
-          <label className="text-lg font-bold text-slate-600 ml-1">Choose an Avatar</label>
-          <div className="flex justify-between gap-2 overflow-x-auto pb-2 no-scrollbar">
-            {avatars.map(emoji => (
-              <button
-                key={emoji}
-                onClick={() => setSelectedAvatar(emoji)}
-                className={`text-4xl p-4 rounded-2xl transition-all ${selectedAvatar === emoji ? "bg-sky-100 scale-110 ring-4 ring-sky-200" : "bg-white hover:bg-slate-50"}`}
-              >
-                {emoji}
-              </button>
-            ))}
-          </div>
+          <AvatarSelector selectedAvatar={selectedAvatar} onSelect={setSelectedAvatar} />
         </div>
 
         <BigButton 
