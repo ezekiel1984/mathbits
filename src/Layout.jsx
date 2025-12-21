@@ -7,6 +7,7 @@ import { useQuery } from '@tanstack/react-query';
 import ParentGate from "@/components/common/ParentGate";
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
+import BrandHeader from "@/components/common/BrandHeader";
 
 export default function Layout({ children, currentPageName }) {
   const navigate = useNavigate();
@@ -25,7 +26,8 @@ export default function Layout({ children, currentPageName }) {
 
   const isHighContrast = userProfile?.high_contrast;
   const hideNav = !user || ['Privacy', 'Support', 'LandingPage'].includes(currentPageName);
-  
+  const showHeader = !['LandingPage', 'Game'].includes(currentPageName) && user; // Only show auth header if logged in and not on game/landing
+
   // Base styles
   const baseBg = isHighContrast ? "bg-black" : "bg-slate-50"; // Neutral background to let colors pop
   const baseText = isHighContrast ? "text-yellow-400" : "text-slate-800";
@@ -87,6 +89,8 @@ export default function Layout({ children, currentPageName }) {
         }
       `}</style>
       
+      {showHeader && <BrandHeader isHighContrast={isHighContrast} />}
+
       {/* Main Content Area */}
       <main className="flex-grow w-full max-w-md mx-auto p-4 pb-24 md:max-w-4xl md:p-8">
         {/* Page Transitions */}

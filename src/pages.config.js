@@ -8,6 +8,8 @@ import Rewards from './pages/Rewards';
 import Support from './pages/Support';
 import Privacy from './pages/Privacy';
 import LandingPage from './pages/LandingPage';
+import Onboarding from './pages/Onboarding';
+import Dashboard from './pages/Dashboard';
 import __Layout from './Layout.jsx';
 
 
@@ -22,6 +24,8 @@ export const PAGES = {
     "Support": Support,
     "Privacy": Privacy,
     "LandingPage": LandingPage,
+    "Onboarding": Onboarding,
+    "Dashboard": Dashboard,
 }
 
 export const pagesConfig = {

@@ -1,15 +1,13 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { base44 } from "@/api/base44Client";
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
+import { createPageUrl } from "@/utils";
+import LandingPage from "@/components/home/LandingPage";
 import { motion } from 'framer-motion';
 
-// Component Views
-import LandingPage from "@/components/home/LandingPage";
-import Dashboard from "@/components/home/Dashboard";
-import Onboarding from "@/components/home/Onboarding";
-
 export default function Home() {
-  const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   const { data: user, isLoading: isUserLoading } = useQuery({
     queryKey: ['me'],
@@ -26,17 +24,21 @@ export default function Home() {
     enabled: !!user
   });
 
-  const createProfileMutation = useMutation({
-    mutationFn: (data) => base44.entities.UserProfile.create(data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['profile'] });
+  // Routing Logic
+  useEffect(() => {
+    if (!isUserLoading && !isProfileLoading && user) {
+        if (profile) {
+            navigate(createPageUrl('Dashboard'), { replace: true });
+        } else {
+            navigate(createPageUrl('Onboarding'), { replace: true });
+        }
     }
-  });
+  }, [user, profile, isUserLoading, isProfileLoading, navigate]);
 
-  // 0. Loading State
-  if (isUserLoading || isProfileLoading) {
+  // Loading State
+  if (isUserLoading || (user && isProfileLoading)) {
     return (
-      <div className="flex items-center justify-center h-[80vh]">
+      <div className="flex items-center justify-center h-screen">
         <motion.div 
           animate={{ rotate: 360 }}
           transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
@@ -46,21 +48,11 @@ export default function Home() {
     );
   }
 
-  // 1. Landing Page (Not Logged In)
+  // If not logged in, show Landing Page
   if (!user) {
     return <LandingPage />;
   }
 
-  // 2. Onboarding (Logged In, No Profile)
-  if (user && !profile) {
-    return (
-      <Onboarding 
-        onSubmit={(data) => createProfileMutation.mutate(data)} 
-        isPending={createProfileMutation.isPending} 
-      />
-    );
-  }
-
-  // 3. Dashboard (Logged In, Has Profile)
-  return <Dashboard profile={profile} />;
+  // Fallback while redirecting
+  return null; 
 }
