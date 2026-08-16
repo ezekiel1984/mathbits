@@ -1,0 +1,24 @@
+{
+  "name": "Rewards",
+  "type": "object",
+  "properties": {
+    "userId": {
+      "type": "string"
+    },
+    "points": {
+      "type": "number",
+      "default": 0
+    },
+    "badges": {
+      "type": "string",
+      "description": "JSON string of badges"
+    },
+    "unlockedThemes": {
+      "type": "string",
+      "description": "JSON string of unlocked themes"
+    }
+  },
+  "required": [
+    "userId"
+  ]
+}

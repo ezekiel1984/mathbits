@@ -1,0 +1,66 @@
+{
+  "name": "UserProfile",
+  "type": "object",
+  "properties": {
+    "display_name": {
+      "type": "string",
+      "description": "The name the child prefers to be called"
+    },
+    "stimulus_level": {
+      "type": "integer",
+      "default": 3,
+      "minimum": 1,
+      "maximum": 5,
+      "description": "Sensory intensity level (1=Calm, 5=Exciting)"
+    },
+    "high_contrast": {
+      "type": "boolean",
+      "default": false,
+      "description": "Enable high contrast mode"
+    },
+    "current_grade": {
+      "type": "string",
+      "enum": [
+        "K",
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6"
+      ],
+      "default": "K"
+    },
+    "points": {
+      "type": "integer",
+      "default": 0
+    },
+    "streak": {
+      "type": "integer",
+      "default": 0,
+      "description": "Current daily streak"
+    },
+    "last_practice_date": {
+      "type": "string",
+      "format": "date",
+      "description": "Date of last practice session (YYYY-MM-DD)"
+    },
+    "avatar_url": {
+      "type": "string",
+      "description": "Legacy URL field - now used as fallback"
+    },
+    "companion_id": {
+      "type": "string",
+      "default": "blocky",
+      "description": "ID of the selected MathBits Companion"
+    },
+    "is_admin": {
+      "type": "boolean",
+      "default": false,
+      "description": "Flag for content editors/admins"
+    }
+  },
+  "required": [
+    "display_name"
+  ]
+}

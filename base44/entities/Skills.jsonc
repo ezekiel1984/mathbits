@@ -1,0 +1,40 @@
+{
+  "name": "Skills",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "domain": {
+      "type": "string",
+      "enum": [
+        "Number",
+        "Add",
+        "Sub",
+        "Mul",
+        "Div",
+        "Fractions",
+        "Geometry",
+        "WordProblems"
+      ]
+    },
+    "level": {
+      "type": "integer"
+    },
+    "description": {
+      "type": "string"
+    },
+    "isActive": {
+      "type": "boolean",
+      "default": true
+    },
+    "orderIndex": {
+      "type": "integer"
+    }
+  },
+  "required": [
+    "name",
+    "domain",
+    "level"
+  ]
+}

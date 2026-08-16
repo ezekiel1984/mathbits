@@ -1,0 +1,30 @@
+{
+  "name": "SkillMastery",
+  "type": "object",
+  "properties": {
+    "userId": {
+      "type": "string"
+    },
+    "skillId": {
+      "type": "string"
+    },
+    "masteryScore": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100,
+      "default": 0
+    },
+    "streak": {
+      "type": "integer",
+      "default": 0
+    },
+    "lastSeenAt": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "userId",
+    "skillId"
+  ]
+}

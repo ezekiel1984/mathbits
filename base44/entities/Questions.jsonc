@@ -1,0 +1,46 @@
+{
+  "name": "Questions",
+  "type": "object",
+  "properties": {
+    "skillId": {
+      "type": "string",
+      "description": "ID of the related Skill"
+    },
+    "promptText": {
+      "type": "string"
+    },
+    "promptImageUrl": {
+      "type": "string"
+    },
+    "questionType": {
+      "type": "string",
+      "enum": [
+        "multipleChoice",
+        "numeric",
+        "dragDropPlaceholder"
+      ]
+    },
+    "correctAnswer": {
+      "type": "string"
+    },
+    "choices": {
+      "type": "string",
+      "description": "JSON string of choices"
+    },
+    "hintStepChain": {
+      "type": "string",
+      "description": "JSON string of hint steps"
+    },
+    "difficulty": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 5
+    }
+  },
+  "required": [
+    "skillId",
+    "promptText",
+    "questionType",
+    "correctAnswer"
+  ]
+}

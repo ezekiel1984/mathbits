@@ -1,0 +1,52 @@
+{
+  "name": "Settings",
+  "type": "object",
+  "properties": {
+    "userId": {
+      "type": "string"
+    },
+    "theme": {
+      "type": "string"
+    },
+    "stimulusLevel": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 3,
+      "default": 1
+    },
+    "soundOn": {
+      "type": "boolean",
+      "default": true
+    },
+    "animationsLevel": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 3,
+      "default": 1
+    },
+    "timerMode": {
+      "type": "string",
+      "enum": [
+        "off",
+        "on"
+      ],
+      "default": "off"
+    },
+    "stepChainMode": {
+      "type": "boolean",
+      "default": true
+    },
+    "fontSize": {
+      "type": "string",
+      "enum": [
+        "small",
+        "med",
+        "large"
+      ],
+      "default": "med"
+    }
+  },
+  "required": [
+    "userId"
+  ]
+}

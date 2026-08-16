@@ -1,0 +1,30 @@
+{
+  "name": "Attempts",
+  "type": "object",
+  "properties": {
+    "userId": {
+      "type": "string"
+    },
+    "skillId": {
+      "type": "string"
+    },
+    "questionId": {
+      "type": "string"
+    },
+    "isCorrect": {
+      "type": "boolean"
+    },
+    "timeTakenSec": {
+      "type": "number"
+    },
+    "hintsUsed": {
+      "type": "integer",
+      "default": 0
+    }
+  },
+  "required": [
+    "userId",
+    "questionId",
+    "isCorrect"
+  ]
+}

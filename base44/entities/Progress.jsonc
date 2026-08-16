@@ -1,0 +1,27 @@
+{
+  "name": "Progress",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string"
+    },
+    "problem_id": {
+      "type": "string"
+    },
+    "type": {
+      "type": "string"
+    },
+    "is_correct": {
+      "type": "boolean"
+    },
+    "time_taken_seconds": {
+      "type": "integer"
+    },
+    "difficulty": {
+      "type": "integer"
+    }
+  },
+  "required": [
+    "is_correct"
+  ]
+}
